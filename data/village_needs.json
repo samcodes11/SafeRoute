@@ -1,0 +1,904 @@
+{
+  "villages": {
+    "v1": {
+      "villageId": "v1",
+      "villageName": "Rampur",
+      "totalItems": 22,
+      "totalWeightKg": 129,
+      "needs": [
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 2
+        }
+      ]
+    },
+    "v2": {
+      "villageId": "v2",
+      "villageName": "Koshighat",
+      "totalItems": 24,
+      "totalWeightKg": 169,
+      "needs": [
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 4
+        }
+      ]
+    },
+    "v3": {
+      "villageId": "v3",
+      "villageName": "Jalmarg",
+      "totalItems": 26,
+      "totalWeightKg": 188,
+      "needs": [
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 4
+        }
+      ]
+    },
+    "v4": {
+      "villageId": "v4",
+      "villageName": "Tarapur",
+      "totalItems": 31,
+      "totalWeightKg": 229,
+      "needs": [
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 2
+        }
+      ]
+    },
+    "v5": {
+      "villageId": "v5",
+      "villageName": "Gangapur",
+      "totalItems": 32,
+      "totalWeightKg": 245,
+      "needs": [
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v6": {
+      "villageId": "v6",
+      "villageName": "Dhanbari",
+      "totalItems": 28,
+      "totalWeightKg": 168,
+      "needs": [
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 3
+        }
+      ]
+    },
+    "v7": {
+      "villageId": "v7",
+      "villageName": "Majhigaon",
+      "totalItems": 29,
+      "totalWeightKg": 191,
+      "needs": [
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v8": {
+      "villageId": "v8",
+      "villageName": "Bharauli",
+      "totalItems": 22,
+      "totalWeightKg": 137,
+      "needs": [
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v9": {
+      "villageId": "v9",
+      "villageName": "Pipargaon",
+      "totalItems": 18,
+      "totalWeightKg": 122,
+      "needs": [
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        }
+      ]
+    },
+    "v10": {
+      "villageId": "v10",
+      "villageName": "Hariyali",
+      "totalItems": 22,
+      "totalWeightKg": 147,
+      "needs": [
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v11": {
+      "villageId": "v11",
+      "villageName": "Mohanpur",
+      "totalItems": 25,
+      "totalWeightKg": 154,
+      "needs": [
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        }
+      ]
+    },
+    "v12": {
+      "villageId": "v12",
+      "villageName": "Bansghat",
+      "totalItems": 30,
+      "totalWeightKg": 182,
+      "needs": [
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v13": {
+      "villageId": "v13",
+      "villageName": "Machhligaon",
+      "totalItems": 25,
+      "totalWeightKg": 147,
+      "needs": [
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        }
+      ]
+    },
+    "v14": {
+      "villageId": "v14",
+      "villageName": "Baluchar",
+      "totalItems": 26,
+      "totalWeightKg": 158,
+      "needs": [
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 5
+        }
+      ]
+    },
+    "v15": {
+      "villageId": "v15",
+      "villageName": "Kumhargaon",
+      "totalItems": 28,
+      "totalWeightKg": 152,
+      "needs": [
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 2
+        }
+      ]
+    },
+    "v16": {
+      "villageId": "v16",
+      "villageName": "Sitamarhi",
+      "totalItems": 30,
+      "totalWeightKg": 184,
+      "needs": [
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Tarpaulin sheet",
+          "weightKg": 7,
+          "urgency": 45,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 4
+        }
+      ]
+    },
+    "v17": {
+      "villageId": "v17",
+      "villageName": "Charkhaghat",
+      "totalItems": 27,
+      "totalWeightKg": 181,
+      "needs": [
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Baby food and milk pack",
+          "weightKg": 5,
+          "urgency": 85,
+          "unitsNeeded": 3
+        },
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Life jacket set",
+          "weightKg": 5,
+          "urgency": 70,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Food packet box",
+          "weightKg": 10,
+          "urgency": 80,
+          "unitsNeeded": 5
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 3
+        }
+      ]
+    },
+    "v18": {
+      "villageId": "v18",
+      "villageName": "Sonbarsa",
+      "totalItems": 21,
+      "totalWeightKg": 139,
+      "needs": [
+        {
+          "name": "Drinking-water crate",
+          "weightKg": 12,
+          "urgency": 90,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Hygiene kit",
+          "weightKg": 4,
+          "urgency": 55,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Medical kit",
+          "weightKg": 8,
+          "urgency": 100,
+          "unitsNeeded": 2
+        },
+        {
+          "name": "Torch and batteries",
+          "weightKg": 2,
+          "urgency": 40,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Blanket bundle",
+          "weightKg": 6,
+          "urgency": 50,
+          "unitsNeeded": 4
+        },
+        {
+          "name": "Portable stove",
+          "weightKg": 9,
+          "urgency": 35,
+          "unitsNeeded": 3
+        }
+      ]
+    }
+  }
+}

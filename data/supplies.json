@@ -1,0 +1,74 @@
+{
+  "supplies": [
+    {
+      "id": "sup_water",
+      "name": "Drinking-water crate",
+      "weightKg": 12,
+      "urgency": 90,
+      "description": "Sealed 20-litre potable drinking water bottles with purification tablets"
+    },
+    {
+      "id": "sup_food",
+      "name": "Food packet box",
+      "weightKg": 10,
+      "urgency": 80,
+      "description": "Ready-to-eat high-energy biscuits, roasted grains, and canned meals (10-ration box)"
+    },
+    {
+      "id": "sup_med",
+      "name": "Medical kit",
+      "weightKg": 8,
+      "urgency": 100,
+      "description": "Emergency triage trauma dressings, antiseptic, ORS sachets, and anti-venom"
+    },
+    {
+      "id": "sup_baby",
+      "name": "Baby food and milk pack",
+      "weightKg": 5,
+      "urgency": 85,
+      "description": "Infant formula, sterilised water pouches, baby cereal, and feeding bottles"
+    },
+    {
+      "id": "sup_jacket",
+      "name": "Life jacket set",
+      "weightKg": 5,
+      "urgency": 70,
+      "description": "4-pack certified high-buoyancy adult and child inflatable life vests"
+    },
+    {
+      "id": "sup_hygiene",
+      "name": "Hygiene kit",
+      "weightKg": 4,
+      "urgency": 55,
+      "description": "Sanitary napkins, disinfectant soap, chlorine tablets, and dental supplies"
+    },
+    {
+      "id": "sup_blanket",
+      "name": "Blanket bundle",
+      "weightKg": 6,
+      "urgency": 50,
+      "description": "Thermal fleece emergency blankets and waterproof sleeping mats (5-pack)"
+    },
+    {
+      "id": "sup_tarp",
+      "name": "Tarpaulin sheet",
+      "weightKg": 7,
+      "urgency": 45,
+      "description": "Heavy-duty waterproof polyethylene shelter ground and roof covering"
+    },
+    {
+      "id": "sup_torch",
+      "name": "Torch and batteries",
+      "weightKg": 2,
+      "urgency": 40,
+      "description": "Waterproof solar LED rechargeable torch with multi-format battery pack"
+    },
+    {
+      "id": "sup_stove",
+      "name": "Portable stove",
+      "weightKg": 9,
+      "urgency": 35,
+      "description": "Compact dual-burner kerosene/butane camp stove with wind shield"
+    }
+  ]
+}
