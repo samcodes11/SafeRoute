@@ -1,0 +1,138 @@
+{
+  "notice": "National numbers; some, like 108, vary by state. Verify locally. This prototype does not place calls. Facility contacts on the planner are demo numbers.",
+  "source": "Maharashtra Police emergency helpline list & NDMA directory",
+  "categories": [
+    {
+      "id": "immediate",
+      "title": "Immediate Life Safety & Emergency",
+      "numbers": [
+        {
+          "number": "112",
+          "tel": "112",
+          "service": "National All-in-One Emergency",
+          "description": "Single unified helpline for Police, Fire, and Ambulance response across all states and Union Territories."
+        },
+        {
+          "number": "100",
+          "tel": "100",
+          "service": "Police Helpline",
+          "description": "Call for immediate police assistance, public safety alerts, and law enforcement emergency support."
+        },
+        {
+          "number": "101",
+          "tel": "101",
+          "service": "Fire & Rescue Service",
+          "description": "Call for building collapse, industrial fires, and emergency water rescue assistance."
+        },
+        {
+          "number": "102",
+          "tel": "102",
+          "service": "Basic Patient Transport Ambulance",
+          "description": "Free transport ambulance support for pregnant mothers, infants, and non-trauma medical cases."
+        },
+        {
+          "number": "108",
+          "tel": "108",
+          "service": "Emergency Medical & Disaster Response",
+          "description": "Trained paramedic ambulance and critical disaster field response (state coverage varies)."
+        }
+      ]
+    },
+    {
+      "id": "disaster",
+      "title": "Disaster Response & Calamity Relief",
+      "numbers": [
+        {
+          "number": "1078",
+          "tel": "1078",
+          "service": "NDMA Disaster Management Control Room",
+          "description": "National Disaster Management Authority 24x7 control room for flood and cyclone alerts. Also: 011-26701700."
+        },
+        {
+          "number": "1070",
+          "tel": "1070",
+          "service": "State Relief Commissioner",
+          "description": "State headquarters control room for natural calamities, flood inundation, and relief coordination."
+        },
+        {
+          "number": "011-24363260",
+          "tel": "01124363260",
+          "service": "NDRF National Control Room",
+          "description": "National Disaster Response Force specialized deployment for flood rescue and structural collapse. Secondary: 9711077372."
+        }
+      ]
+    },
+    {
+      "id": "public_welfare",
+      "title": "Public Safety & Specialized Helplines",
+      "numbers": [
+        {
+          "number": "1073",
+          "tel": "1073",
+          "service": "Road Accident Emergency Service",
+          "description": "Highway trauma rescue, vehicle collision response, and road hazard clearance."
+        },
+        {
+          "number": "1906",
+          "tel": "1906",
+          "service": "LPG Leak Emergency Helpline",
+          "description": "24x7 nationwide gas leakage emergency response across all oil marketing companies."
+        },
+        {
+          "number": "1098",
+          "tel": "1098",
+          "service": "Childline India",
+          "description": "Emergency outreach and rehabilitation service for children in need of care and protection."
+        },
+        {
+          "number": "181",
+          "tel": "181",
+          "service": "Women Helpline (Domestic & Disaster)",
+          "description": "24 hours toll-free support for women facing distress, isolation, or violence."
+        },
+        {
+          "number": "1091",
+          "tel": "1091",
+          "service": "Women Police Helpline",
+          "description": "Direct police emergency dispatch for women in imminent danger or requiring rescue."
+        },
+        {
+          "number": "14567",
+          "tel": "14567",
+          "service": "Elderline (Senior Citizens)",
+          "description": "National helpline providing emotional support, healthcare guidance, and rescue for senior citizens."
+        }
+      ]
+    }
+  ],
+  "flood_safety_tips": [
+    {
+      "title": "Move to High Ground",
+      "text": "Immediately move family, livestock, and essential belongings to higher elevations or designated shelter points as soon as rising water is observed."
+    },
+    {
+      "title": "Never Drive or Walk in Floodwater",
+      "text": "Just 15 cm of moving floodwater can knock you down, and 30 cm can carry away a light vehicle. Turn around; do not attempt to cross flooded causeways."
+    },
+    {
+      "title": "Beware of Fallen Electrical Lines",
+      "text": "Stay at least 10 metres away from damaged power lines, submerged transformers, and fallen cables. Report them to electrical authorities immediately."
+    },
+    {
+      "title": "Disconnect Mains Supply",
+      "text": "Turn off the main electrical circuit breaker and LPG gas cylinder valves before leaving your home, provided you can do so safely without standing in water."
+    },
+    {
+      "title": "Prepare an Emergency Grab Bag",
+      "text": "Keep waterproof pouches ready containing Aadhaar/identity papers, essential chronic medicines, portable torch, power bank, dry food, and clean water."
+    },
+    {
+      "title": "Use Safe Drinking Water",
+      "text": "Floodwaters are severely contaminated with silt and sewage. Drink only boiled, chlorinated, or sealed bottled water to prevent cholera and waterborne epidemics."
+    },
+    {
+      "title": "Monitor Verified Broadcasts",
+      "text": "Tune in to All India Radio, local district administration emergency announcements, or official NDMA disaster SMS alerts for verified evacuation updates."
+    }
+  ]
+}

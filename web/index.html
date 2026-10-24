@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeRoute — Disaster Evacuation Route Planner</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233A2E26' stroke-width='2'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=2.2">
+</head>
+<body>
+
+  <!-- Slim Bar Always Visible at Top -->
+  <aside class="top-emergency-bar" role="banner" aria-label="Emergency Dispatch Bar">
+    <span>National Calamity Alert: In an immediate emergency call <strong>112</strong></span>
+    <a href="tel:112" class="emergency-call-pill" title="Tap to call National Emergency Number 112">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      Call 112
+    </a>
+  </aside>
+
+  <!-- Print View Header (Shown only during printing) -->
+  <div class="print-only-header" id="print-view-container" style="display: none;">
+    <h1 style="font-size: 26px; margin-bottom: 4px;">SafeRoute &mdash; Official Evacuation &amp; Relief Deployment Document</h1>
+    <p style="font-size: 13px; color: #555;">Decision-Support Evacuation Plan &bull; Generated for Flood/Disaster Relief Deployment</p>
+    <p id="print-meta-timestamp" style="font-size: 12px; margin-top: 6px; color: #333;"></p>
+    <div id="print-relief-section" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #777; display: none;"></div>
+  </div>
+
+  <!-- Primary Application Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#3A2E26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+      <div>
+        <h1>SafeRoute</h1>
+        <span class="tagline">Disaster Evacuation Route Planner &amp; Detour Analysis</span>
+      </div>
+    </div>
+
+    <!-- Top Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist" aria-label="Application Navigation">
+      <button class="nav-tab-btn active" id="tab-btn-planner" role="tab" aria-selected="true" aria-controls="pane-planner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/>
+          <line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        Evacuation Planner
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-loading" role="tab" aria-selected="false" aria-controls="pane-loading">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13"/>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        Relief Loading
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-emergency" role="tab" aria-selected="false" aria-controls="pane-emergency">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        Emergency Numbers
+      </button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button id="btn-print-plan" class="btn btn-secondary btn-sm" title="Print Evacuation Report or Save as PDF">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print Plan
+      </button>
+      <button id="btn-reset-network" class="btn btn-outline btn-sm" title="Restore all blocked roads to open">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+        Reset Roads
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast-msg" role="status" aria-live="polite"></div>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ════════════════ TAB 1: EVACUATION PLANNER ════════════════ -->
+    <div id="pane-planner" class="tab-pane active" role="tabpanel">
+
+      <div class="planner-grid">
+
+        <!-- Left Column: Map & Results Card -->
+        <div class="left-col">
+
+          <!-- Road Network Map Card -->
+          <section class="card" aria-label="Interactive Road Network Map">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                Disaster River-Belt Network Map
+              </h2>
+              <span style="font-size: 13px; color: #7A6A5B;">Click any road line to toggle obstruction</span>
+            </div>
+
+            <div class="card-body">
+              <!-- Map Toolbar: Facility Filter Chips & Toggles -->
+              <div class="map-toolbar">
+                <div class="filter-chips" id="filter-chips-container" aria-label="Facility Visibility Filters">
+                  <!-- Generated dynamically in app.js -->
+                </div>
+
+                <div class="map-controls-group">
+                  <label class="checkbox-row" title="Run multi-source Dijkstra from all shelters">
+                    <input type="checkbox" id="toggle-coverage-view">
+                    <span>Coverage View</span>
+                  </label>
+                  <label class="checkbox-row" style="margin-left: 12px;" title="Show km labels on all road segments">
+                    <input type="checkbox" id="toggle-all-distances">
+                    <span>Show Distances</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Coverage View Summary Bar (Hidden by default) -->
+              <div id="coverage-summary-panel" class="coverage-summary-bar" style="display: none;">
+                <div>
+                  <strong style="color: #3A2E26;">Multi-Source Shelter Coverage:</strong>
+                  <span id="coverage-stats-text" style="color: #7A6A5B; margin-left: 8px;"></span>
+                </div>
+                <div id="coverage-cutoff-names" style="color: #A8281E; font-size: 13px; margin-left: auto;"></div>
+              </div>
+
+              <!-- SVG Canvas Viewport -->
+              <div class="map-viewport" id="map-viewport">
+                <!-- Floating Zoom Controls -->
+                <div class="zoom-controls" aria-label="Map Zoom and Reset Controls">
+                  <button id="btn-zoom-in" class="zoom-btn" title="Zoom In">+</button>
+                  <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out">&minus;</button>
+                  <button id="btn-zoom-reset" class="zoom-btn" title="Reset View" style="font-size: 11px;">1:1</button>
+                </div>
+
+                <svg id="map-svg" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <!-- Warning triangle marker for blocked roads -->
+                    <marker id="marker-warning-triangle" viewBox="0 0 20 20" refX="10" refY="10" markerWidth="14" markerHeight="14" orient="auto">
+                      <polygon points="10,2 18,17 2,17" fill="#A8281E" stroke="#FBF6EC" stroke-width="1.5"/>
+                      <text x="10" y="15" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">!</text>
+                    </marker>
+                  </defs>
+
+                  <!-- SVG layer stack -->
+                  <g id="svg-transform-layer">
+                    <!-- Faint cartographic terrain & river layer -->
+                    <g id="layer-cartography" style="pointer-events: none;">
+                      <!-- Topographic elevation contour lines -->
+                      <path d="M 30,70 Q 260,35 520,85 T 970,65" fill="none" stroke="#E3D6BE" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.45"/>
+                      <path d="M 20,150 Q 310,115 620,165 T 980,135" fill="none" stroke="#E3D6BE" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.45"/>
+                      <path d="M 40,370 Q 360,335 720,395 T 970,355" fill="none" stroke="#E3D6BE" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.45"/>
+                      <path d="M 30,480 Q 290,445 640,505 T 970,465" fill="none" stroke="#E3D6BE" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.45"/>
+                      <!-- Koshi-style braided river flowing through the basin -->
+                      <path d="M 80,-20 C 130,120 230,180 290,260 S 430,340 550,380 S 770,460 850,640" fill="none" stroke="#D3E0EA" stroke-width="32" stroke-linecap="round" opacity="0.38"/>
+                      <path d="M 80,-20 C 130,120 230,180 290,260 S 430,340 550,380 S 770,460 850,640" fill="none" stroke="#B8D0E0" stroke-width="20" stroke-linecap="round" opacity="0.55"/>
+                      <text x="330" y="278" font-family="'DM Sans', Georgia, sans-serif" font-size="11" font-style="italic" fill="#7B99AB" letter-spacing="3" opacity="0.85">RIVER BASIN (FLOODPLAIN)</text>
+                    </g>
+                    <g id="layer-roads"></g>
+                    <g id="layer-routes-overlay"></g>
+                    <g id="layer-road-markers"></g>
+                    <g id="layer-road-distances"></g>
+                    <g id="layer-nodes"></g>
+                    <g id="layer-node-labels"></g>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Map Legend -->
+              <div class="map-legend">
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #5E8C61;"></span> Shelter</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #B8473D;"></span> Hospital</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #5B7FA3;"></span> Village</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; transform: rotate(45deg); background: #9C8B78;"></span> Junction</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #8A5A7B;"></span> NGO Camp</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #D1A027;"></span> Food Depot</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #2E8B8B;"></span> Water Point</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #E0912B;"></span> Fire/Rescue</div>
+                <div class="legend-item"><span class="legend-sample" style="width: 10px; height: 10px; border-radius: 50%; background: #3B4D75;"></span> Police</div>
+                <div class="legend-item" style="margin-left: auto;">
+                  <span class="legend-line-sample" style="background: #2F7D4F;"></span> Original
+                </div>
+                <div class="legend-item">
+                  <span class="legend-line-sample" style="background: #C2542D;"></span> Revised Detour
+                </div>
+                <div class="legend-item">
+                  <span class="legend-line-sample" style="background: #A8281E; border-top: 2px dashed #A8281E; height: 0;"></span> Blocked
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Route Comparison Results Card -->
+          <section class="card" id="results-card" aria-label="Evacuation Route Comparison">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Evacuation Route &amp; Detour Analysis
+              </h2>
+              <span id="route-meta-label" style="font-size: 13px; color: #7A6A5B;"></span>
+            </div>
+
+            <div class="card-body">
+              <div id="results-empty-state" style="text-align: center; padding: 28px 20px; color: #7A6A5B;">
+                Select an affected community and click <strong>Find Evacuation Route</strong> to calculate shortest safe corridors.
+              </div>
+
+              <div id="results-content-panel" style="display: none;">
+                <!-- Simulated Disruption Banner -->
+                <div id="disruption-alert-banner" class="banner-alert info" style="display: none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span id="disruption-banner-text"></span>
+                </div>
+
+                <!-- Unreachable Cut-off Banner -->
+                <div id="unreachable-alert-banner" class="banner-alert danger" style="display: none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span><strong>No Safe Route Available:</strong> The selected evacuation target is entirely isolated by active obstructions. Dispatch rescue boats or airlift.</span>
+                </div>
+
+                <!-- 4 Big Metric Numbers -->
+                <div class="results-hero-grid">
+                  <div class="metric-box original">
+                    <span class="metric-label">Original Baseline</span>
+                    <span class="metric-value" id="metric-orig-dist">--</span>
+                    <span style="font-size: 13px; color: #7A6A5B; margin-top: 4px;">All roads unobstructed</span>
+                  </div>
+
+                  <div class="metric-box detour" id="metric-box-revised">
+                    <span class="metric-label">Revised Safe Route</span>
+                    <span class="metric-value" id="metric-rev-dist">--</span>
+                    <span style="font-size: 13px; color: #7A6A5B; margin-top: 4px;">Only open roads used</span>
+                  </div>
+
+                  <div class="metric-box">
+                    <span class="metric-label">Detour Overhead</span>
+                    <span class="metric-value" id="metric-extra-km">--</span>
+                    <span style="font-size: 13px; color: #7A6A5B; margin-top: 4px;" id="metric-extra-pct">--</span>
+                  </div>
+
+                  <div class="metric-box">
+                    <span class="metric-label">Route Blockages</span>
+                    <span class="metric-value" id="metric-route-blocks">0</span>
+                    <span style="font-size: 13px; color: #7A6A5B; margin-top: 4px;" id="metric-total-blocks">--</span>
+                  </div>
+                </div>
+
+                <!-- Waypoint Steps (Original vs Revised) -->
+                <div style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 10px;">
+                  <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: #2F7D4F; margin-bottom: 6px;">
+                    Original Baseline Route Waypoints:
+                  </h4>
+                  <div id="path-original-chain" class="waypoints-chain"></div>
+                </div>
+
+                <div id="revised-chain-container" style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 10px;">
+                  <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: #C2542D; margin-bottom: 6px;">
+                    Revised Safe Detour Waypoints:
+                  </h4>
+                  <div id="path-revised-chain" class="waypoints-chain"></div>
+                </div>
+
+                <!-- Blocked Roads that Affected This Route -->
+                <div id="blocked-on-route-section" style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 10px; display: none;">
+                  <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: #A8281E; margin-bottom: 8px;">
+                    Obstructions on Original Baseline Corridor:
+                  </h4>
+                  <ul id="blocked-on-route-list" class="obstruction-list"></ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Controls, Scenarios, Obstructions & Services -->
+        <div class="right-col">
+
+          <!-- Card 1: Evacuation Controls -->
+          <section class="card" aria-label="Route Planning Controls">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                Evacuation Controls
+              </h2>
+            </div>
+
+            <div class="card-body control-section">
+              <div class="form-group">
+                <label for="select-source">Affected Location (Source):</label>
+                <select id="select-source" class="form-control">
+                  <option value="">&mdash; Choose Affected Place &mdash;</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="select-dest">Evacuation Target (Shelter):</label>
+                <select id="select-dest" class="form-control">
+                  <option value="auto">Auto (Nearest Open Shelter)</option>
+                </select>
+              </div>
+
+              <label class="checkbox-row" title="If no active obstruction touches your route, automatically simulate disruption to evaluate detours">
+                <input type="checkbox" id="check-ensure-detour" checked>
+                <span>Ensure visible detour (simulate route disruption)</span>
+              </label>
+
+              <div class="btn-group-row">
+                <button id="btn-calculate-route" class="btn btn-primary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Find Route
+                </button>
+                <button id="btn-clear-route" class="btn btn-outline">Clear</button>
+              </div>
+
+              <button id="btn-open-stepper" class="btn btn-secondary btn-block" title="Inspect Dijkstra min-heap execution step-by-step">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                How it works (Dijkstra Stepper)
+              </button>
+            </div>
+          </section>
+
+          <!-- Card 2: Seeded Scenario Generator -->
+          <section class="card" aria-label="Seeded Disaster Scenario Generator">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                Disaster Scenario Generator
+              </h2>
+            </div>
+
+            <div class="card-body control-section">
+              <div class="form-group">
+                <label for="select-severity">Scenario Severity:</label>
+                <select id="select-severity" class="form-control">
+                  <option value="light">Light (~8% roads blocked, all villages connected)</option>
+                  <option value="moderate" selected>Moderate (~15% roads blocked, all villages connected)</option>
+                  <option value="severe">Severe (~25% roads blocked, cut-offs permitted)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="input-scenario-seed">PRNG Seed (for repeatable tests):</label>
+                <input type="number" id="input-scenario-seed" class="form-control" value="2026">
+              </div>
+
+              <div class="btn-group-row">
+                <button id="btn-apply-scenario" class="btn btn-secondary">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                  </svg>
+                  Apply Scenario
+                </button>
+                <button id="btn-clear-scenario" class="btn btn-outline">Clear All</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Card 3: Active Obstructions & Manual Block -->
+          <section class="card" aria-label="Active Road Obstructions">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Active Obstructions (<span id="obstruction-count-badge">0</span>)
+              </h2>
+            </div>
+
+            <div class="card-body control-section">
+              <ul id="active-obstructions-list" class="obstruction-list">
+                <li style="color: #7A6A5B; font-size: 13px; text-align: center; padding: 12px 0;">
+                  No active road obstructions. Network is fully open.
+                </li>
+              </ul>
+
+              <!-- Manual Road Block Form -->
+              <div style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 4px;">
+                <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">Manual Road Block:</label>
+                <div class="form-group" style="margin-bottom: 8px;">
+                  <select id="select-manual-road" class="form-control">
+                    <option value="">&mdash; Select Road Segment &mdash;</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <select id="select-manual-reason" class="form-control">
+                    <!-- Standard reasons populated dynamically -->
+                  </select>
+                </div>
+                <button id="btn-manual-block" class="btn btn-secondary btn-block">Block Selected Road</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Card 4: Nearest Services Panel -->
+          <section class="card" aria-label="Nearest Disaster Relief Facilities">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Nearest Relief Facilities
+              </h2>
+            </div>
+
+            <div class="card-body">
+              <p style="font-size: 13px; color: #7A6A5B; margin-bottom: 10px;">
+                Calculated via single-source Dijkstra from selected source. Contacts are fictional demo numbers.
+              </p>
+              <div id="nearest-services-container" class="services-container">
+                <div style="color: #7A6A5B; font-size: 13px; text-align: center; padding: 12px 0;">
+                  Choose an affected location above to locate nearest medical, food, water, and rescue posts.
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ════════════════ TAB 2: RELIEF LOADING (0/1 KNAPSACK) ════════════════ -->
+    <div id="pane-loading" class="tab-pane" role="tabpanel">
+
+      <div class="loading-grid">
+
+        <!-- Left Column: Controls & Configuration -->
+        <div class="loading-left-col">
+
+          <section class="card" aria-label="Relief Truck Configuration">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"/>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/>
+                  <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+                Relief Dispatch &amp; Truck Limit
+              </h2>
+            </div>
+
+            <div class="card-body control-section">
+              <div class="form-group">
+                <label for="select-load-depot">Dispatch Depot (Origin):</label>
+                <select id="select-load-depot" class="form-control">
+                  <option value="">&mdash; Choose Relief Depot &mdash;</option>
+                </select>
+                <span style="font-size: 12px; color: #7A6A5B; margin-top: 4px; display: block;">NGO relief camps &amp; food distribution centres</span>
+              </div>
+
+              <div class="form-group">
+                <label for="select-load-village">Target Destination (Village):</label>
+                <select id="select-load-village" class="form-control">
+                  <option value="">&mdash; Choose Affected Village &mdash;</option>
+                </select>
+                <span id="label-village-total-need" style="font-size: 12px; color: #7A6A5B; margin-top: 4px; display: block;"></span>
+              </div>
+
+              <!-- Truck Capacity Presets & Slider -->
+              <div class="form-group">
+                <label>Truck Gross Payload Capacity (kg):</label>
+                <div class="capacity-presets-row" role="group" aria-label="Vehicle Presets">
+                  <button type="button" class="preset-btn" data-cap="100">Pickup (100 kg)</button>
+                  <button type="button" class="preset-btn active" data-cap="200">Van (200 kg)</button>
+                  <button type="button" class="preset-btn" data-cap="350">Truck (350 kg)</button>
+                  <button type="button" class="preset-btn" data-cap="500">Heavy (500 kg)</button>
+                </div>
+
+                <div class="slider-row" style="margin-top: 12px;">
+                  <input type="range" id="slider-truck-capacity" min="50" max="500" step="10" value="200" class="form-control-range">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #7A6A5B;">50 kg (min)</span>
+                    <span id="label-capacity-value" style="font-weight: 700; font-size: 16px; color: #3A2E26;">200 kg</span>
+                    <span style="font-size: 12px; color: #7A6A5B;">500 kg (max)</span>
+                  </div>
+                </div>
+              </div>
+
+              <button id="btn-plan-loading" class="btn btn-primary btn-block">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                Plan Loading
+              </button>
+
+              <div style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 14px;">
+                <button id="btn-show-demo" class="btn btn-secondary btn-block" title="Inspect educational counterexample where greedy ratio fails">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  Show Demo Where Greedy Fails
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Trip Route Summary Card -->
+          <section class="card" id="card-trip-summary" aria-label="Relief Corridor Trip Summary" style="display: none;">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+                  <line x1="9" y1="3" x2="9" y2="18"/>
+                  <line x1="15" y1="6" x2="15" y2="21"/>
+                </svg>
+                Corridor Trip Route (Dijkstra)
+              </h2>
+            </div>
+            <div class="card-body">
+              <div id="loading-route-status"></div>
+              <div class="trip-route-metrics" id="loading-trip-metrics" style="margin-top: 10px;"></div>
+              <div id="loading-trip-waypoints" class="waypoints-chain" style="margin-top: 10px;"></div>
+              <button id="btn-view-route-on-map" class="btn btn-outline btn-block btn-sm" style="margin-top: 14px;">
+                Show Route on Map &rarr;
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Comparison Cards & Demo Table -->
+        <div class="loading-right-col">
+
+          <!-- Empty State -->
+          <div id="loading-empty-state" class="card" style="text-align: center; padding: 48px 24px; color: #7A6A5B;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9C8B78" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px;">
+              <rect x="1" y="3" width="15" height="13"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <h3 style="font-size: 18px; margin-bottom: 6px; color: #3A2E26;">No Relief Loading Plan Generated</h3>
+            <p style="font-size: 14px; max-width: 480px; margin: 0 auto;">Select a supply depot, target village, and truck payload limit to optimize humanitarian payload allocation via 0/1 Dynamic Programming.</p>
+          </div>
+
+          <!-- Cut-off unreachable alert for loading -->
+          <div id="loading-unreachable-banner" class="banner-alert danger" style="display: none; margin-bottom: 16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="loading-unreachable-text"><strong>Village Cut Off:</strong> Target village is completely isolated by active road obstructions. Land dispatch is blocked.</span>
+          </div>
+
+          <!-- Active Results Container -->
+          <div id="loading-results-container" style="display: none;">
+
+            <!-- Urgency Delta Callout Banner -->
+            <div id="urgency-delta-banner" class="delta-callout-banner">
+              <!-- Dynamically populated e.g. "+35 urgency gained by DP over greedy heuristic" -->
+            </div>
+
+            <!-- Side-by-Side Comparison Grid -->
+            <div class="knapsack-comparison-grid">
+
+              <!-- Card A: Optimal Load (DP) -->
+              <div class="card method-card dp-card">
+                <div class="card-header method-header">
+                  <div class="method-title-wrap">
+                    <span class="method-badge dp-badge">Dynamic Programming</span>
+                    <h3>Optimal Load (0/1 DP)</h3>
+                  </div>
+                  <span class="complexity-pill">&Theta;(n &middot; W) Optimal</span>
+                </div>
+                <div class="card-body">
+                  <div class="method-hero-stat">
+                    <span class="stat-num" id="dp-total-urgency">0</span>
+                    <span class="stat-sub">Total Urgency Points</span>
+                  </div>
+
+                  <div class="weight-usage-block">
+                    <div class="weight-label-row">
+                      <span>Payload Used</span>
+                      <strong id="dp-weight-ratio">0 / 200 kg</strong>
+                    </div>
+                    <div class="weight-bar-track">
+                      <div class="weight-bar-fill dp-fill" id="dp-weight-bar" style="width: 0%;"></div>
+                    </div>
+                    <span class="weight-pct-sub" id="dp-weight-pct">0% capacity</span>
+                  </div>
+
+                  <h4 class="manifest-heading">Manifest Breakdown (<span id="dp-item-count">0</span> items)</h4>
+                  <div class="manifest-list-wrap">
+                    <table class="manifest-table" id="dp-manifest-table">
+                      <thead>
+                        <tr>
+                          <th>Item Name</th>
+                          <th style="text-align: center;">Qty</th>
+                          <th style="text-align: right;">Unit Wt</th>
+                          <th style="text-align: right;">Total Wt</th>
+                          <th style="text-align: right;">Urgency</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card B: Quick Heuristic (Greedy) -->
+              <div class="card method-card greedy-card">
+                <div class="card-header method-header">
+                  <div class="method-title-wrap">
+                    <span class="method-badge greedy-badge">Greedy Heuristic</span>
+                    <h3>Quick Load (Greedy)</h3>
+                  </div>
+                  <span class="complexity-pill">O(n log n) Heuristic</span>
+                </div>
+                <div class="card-body">
+                  <div class="method-hero-stat">
+                    <span class="stat-num" id="greedy-total-urgency">0</span>
+                    <span class="stat-sub">Total Urgency Points</span>
+                  </div>
+
+                  <div class="weight-usage-block">
+                    <div class="weight-label-row">
+                      <span>Payload Used</span>
+                      <strong id="greedy-weight-ratio">0 / 200 kg</strong>
+                    </div>
+                    <div class="weight-bar-track">
+                      <div class="weight-bar-fill greedy-fill" id="greedy-weight-bar" style="width: 0%;"></div>
+                    </div>
+                    <span class="weight-pct-sub" id="greedy-weight-pct">0% capacity</span>
+                  </div>
+
+                  <h4 class="manifest-heading">Manifest Breakdown (<span id="greedy-item-count">0</span> items)</h4>
+                  <div class="manifest-list-wrap">
+                    <table class="manifest-table" id="greedy-manifest-table">
+                      <thead>
+                        <tr>
+                          <th>Item Name</th>
+                          <th style="text-align: center;">Qty</th>
+                          <th style="text-align: right;">Unit Wt</th>
+                          <th style="text-align: right;">Total Wt</th>
+                          <th style="text-align: right;">Urgency</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Educational Demo Section: Where Greedy Fails -->
+          <section class="card" id="card-demo-container" style="display: none; margin-top: 20px;">
+            <div class="card-header">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8473D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Counterexample: Where Greedy Fails (50 kg Limit)
+              </h2>
+              <button id="btn-close-demo" class="btn btn-outline btn-sm">Hide Demo</button>
+            </div>
+            <div class="card-body">
+              <div class="demo-explanation-box">
+                <p><strong>The Greedy Trap:</strong> A greedy heuristic selects items by the highest urgency-to-weight ratio (\(u_i / w_i\)).</p>
+                <ul style="margin: 8px 0 8px 20px; font-size: 14px; line-height: 1.6;">
+                  <li><strong>Medical kit:</strong> 10 kg, Urgency 60 &rarr; Ratio <strong>6.0</strong> pt/kg</li>
+                  <li><strong>Blanket bundle:</strong> 20 kg, Urgency 100 &rarr; Ratio <strong>5.0</strong> pt/kg</li>
+                  <li><strong>Water crate:</strong> 30 kg, Urgency 120 &rarr; Ratio <strong>4.0</strong> pt/kg</li>
+                </ul>
+                <p><strong>Greedy Choice:</strong> Picks Medical kit first (10 kg), leaving 40 kg. Next it picks Blanket bundle (20 kg), leaving 20 kg. Water crate (30 kg) does NOT fit. <strong>Greedy total: 30 kg, Urgency 160</strong>.</p>
+                <p><strong>Optimal DP Choice:</strong> Skips Medical kit and selects Blanket bundle + Water crate (\(20 + 30 = 50\text{ kg}\)). <strong>DP total: 50 kg, Urgency 220 (+60 urgency gain!)</strong>.</p>
+              </div>
+
+              <!-- Demo Side-by-Side Mini Cards -->
+              <div class="demo-cards-row" style="display: flex; gap: 16px; margin: 16px 0;">
+                <div class="demo-summary-card dp" style="flex: 1; padding: 12px; background: #EBF3ED; border: 1px solid #5E8C61; border-radius: 8px;">
+                  <strong style="color: #2F7D4F;">DP Optimal Choice:</strong>
+                  <div style="font-size: 22px; font-weight: 700; color: #2F7D4F; margin: 4px 0;">220 Urgency</div>
+                  <div style="font-size: 13px; color: #555;">Blanket bundle (20kg) + Water crate (30kg) = 50 kg (100% full)</div>
+                </div>
+                <div class="demo-summary-card greedy" style="flex: 1; padding: 12px; background: #FDF2E9; border: 1px solid #C2542D; border-radius: 8px;">
+                  <strong style="color: #C2542D;">Greedy Heuristic Choice:</strong>
+                  <div style="font-size: 22px; font-weight: 700; color: #C2542D; margin: 4px 0;">160 Urgency</div>
+                  <div style="font-size: 13px; color: #555;">Medical kit (10kg) + Blanket bundle (20kg) = 30 kg (20 kg wasted!)</div>
+                </div>
+              </div>
+
+              <!-- DP Table Visualizer with highlighted backtracking path -->
+              <div style="margin-top: 14px;">
+                <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: #3A2E26; margin-bottom: 8px;">
+                  Dynamic Programming Table Matrix \(M[i, w]\)
+                  <span style="font-weight: normal; font-size: 12px; color: #7A6A5B; margin-left: 8px;">Highlighted cells = Backtracking Path</span>
+                </h4>
+                <div class="dp-table-scroll-wrap" id="demo-dp-table-container">
+                  <!-- Generated dynamically in app.js -->
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ════════════════ TAB 3: EMERGENCY NUMBERS ════════════════ -->
+    <div id="pane-emergency" class="tab-pane" role="tabpanel">
+
+      <section class="card">
+        <div class="card-header">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8473D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            National Emergency Helplines &amp; Disaster Response Directory
+          </h2>
+          <span style="font-size: 13px; color: #7A6A5B;">Source: Maharashtra Police Emergency Helpline List &amp; NDMA</span>
+        </div>
+
+        <div class="card-body">
+          <!-- Dynamic Cards Container -->
+          <div id="emergency-categories-grid" class="emergency-grid">
+            <!-- Rendered dynamically from web/emergency.json -->
+          </div>
+
+          <!-- Flood Safety Tips Section -->
+          <div style="border-top: 1px solid #E3D6BE; padding-top: 20px; margin-top: 10px;">
+            <h3 style="font-size: 20px; margin-bottom: 14px;">General Flood Safety &amp; Evacuation Guidelines</h3>
+            <div id="flood-tips-grid" class="tips-grid">
+              <!-- Rendered dynamically from web/emergency.json -->
+            </div>
+          </div>
+
+          <!-- Official Disclaimer & Protocol Note -->
+          <div style="margin-top: 24px; padding: 14px; background: #FAF3E6; border: 1px solid #E3D6BE; border-radius: 8px; font-size: 13px; color: #7A6A5B;">
+            <strong>Advisory Notice:</strong> National numbers; some, like 108, vary by state. Verify locally. This prototype does not place calls. Facility contacts on the planner are demo numbers.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ════════════════ MODAL: DIJKSTRA STEPPER VISUALIZER ════════════════ -->
+  <div id="stepper-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="stepper-modal-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 id="stepper-modal-title" style="font-size: 20px; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Step-by-Step Dijkstra Algorithm Execution Trace
+        </h2>
+        <button id="btn-close-stepper" class="btn btn-outline btn-sm" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="stepper-controls">
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-step-prev" class="btn btn-secondary btn-sm">&larr; Prev</button>
+            <button id="btn-step-play" class="btn btn-primary btn-sm">Play</button>
+            <button id="btn-step-next" class="btn btn-secondary btn-sm">Next &rarr;</button>
+            <button id="btn-step-reset" class="btn btn-outline btn-sm">Reset</button>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
+            <label for="slider-step-speed">Speed:</label>
+            <input type="range" id="slider-step-speed" min="100" max="1500" step="100" value="500">
+            <span id="label-step-counter" style="font-weight: 600; margin-left: 8px;">Step 0 / 0</span>
+          </div>
+        </div>
+
+        <div id="stepper-step-desc" style="padding: 10px 14px; background: #FAF3E6; border: 1px solid #E3D6BE; border-radius: 6px; font-size: 14px; margin-bottom: 14px; font-weight: 500;">
+          Press Next or Play to step through Dijkstra min-heap settlement.
+        </div>
+
+        <div class="stepper-grid">
+          <!-- Priority Queue Snapshot Panel -->
+          <div class="stepper-panel">
+            <h4>Priority Queue Min-Heap (Node, Tentative Dist)</h4>
+            <ul id="stepper-pq-list" style="list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+              <li>Queue is empty.</li>
+            </ul>
+          </div>
+
+          <!-- Distance Table Snapshot Panel -->
+          <div class="stepper-panel">
+            <h4>Settled &amp; Tentative Distances</h4>
+            <div id="stepper-dist-table" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; font-size: 12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vanilla Application Logic -->
+  <script src="app.js?v=2.2"></script>
+</body>
+</html>
