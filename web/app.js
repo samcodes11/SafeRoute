@@ -1,18 +1,5 @@
-/*
- * app.js — Frontend Controller for SafeRoute
- *
- * Implements the interactive disaster evacuation planner:
- * - Responsive SVG road network map with 8-direction collision-free label placement
- * - Pan and zoom controls (+, -, reset, and mouse drag-to-pan)
- * - Muted formal facility color palette & custom SVG facility shapes
- * - Seeded disaster scenario generator (Light, Moderate, Severe; default Moderate/2026)
- * - Multi-source shelter coverage view
- * - Nearest relief services grouping with demo contact links and direct routing
- * - Step-by-step Dijkstra min-heap execution stepper visualizer
- * - Printable evacuation plan (window.print() support)
- */
-
-// ─── Theme & Facility Configuration ──────────────────────────────
+// Controls the SafeRoute web interface.
+// Theme & Facility Configuration
 const FACILITY_CONFIG = {
   village:     { label: "Village",         color: "#5B7FA3", shape: "circle" },
   junction:    { label: "Junction",        color: "#9C8B78", shape: "diamond" },
@@ -25,7 +12,7 @@ const FACILITY_CONFIG = {
   police:      { label: "Police Station",  color: "#3B4D75", shape: "police" }
 };
 
-// ─── Application State ───────────────────────────────────────────
+// Application State
 const state = {
   nodes: new Map(),             // id -> Node
   roads: new Map(),             // id -> Road
@@ -56,7 +43,7 @@ const state = {
   currentCapacity: 200
 };
 
-// ─── DOM References Cache ────────────────────────────────────────
+// DOM References Cache
 const dom = {};
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -182,7 +169,7 @@ function cacheDomElements() {
   dom.printReliefSection = document.getElementById("print-relief-section");
 }
 
-// ─── Toast Notification Helper ───────────────────────────────────
+// Toast Notification Helper
 let toastTimer = null;
 function showToast(msg) {
   if (toastTimer) clearTimeout(toastTimer);
@@ -193,7 +180,7 @@ function showToast(msg) {
   }, 4000);
 }
 
-// ─── Navigation Tabs ─────────────────────────────────────────────
+// Navigation Tabs
 function setupNavigationTabs() {
   const switchTab = (tabName) => {
     dom.tabBtnPlanner.classList.toggle("active", tabName === "planner");
@@ -211,7 +198,7 @@ function setupNavigationTabs() {
   dom.tabBtnLoading.addEventListener("click", () => switchTab("loading"));
 }
 
-// ─── Zoom & Pan on SVG Map ───────────────────────────────────────
+// Zoom & Pan on SVG Map
 function setupZoomAndPan() {
   const updateVb = () => {
     dom.mapSvg.setAttribute("viewBox", `${state.curVb.x} ${state.curVb.y} ${state.curVb.w} ${state.curVb.h}`);
@@ -272,7 +259,7 @@ function setupZoomAndPan() {
   });
 }
 
-// ─── Setup Event Listeners ───────────────────────────────────────
+// Setup Event Listeners
 function setupEventListeners() {
   dom.selectSource.addEventListener("change", handleSourceChange);
   dom.selectDest.addEventListener("change", handleDestChange);
@@ -335,7 +322,7 @@ function setupEventListeners() {
   dom.btnViewRouteOnMap.addEventListener("click", showTripOnMap);
 }
 
-// ─── Initial Network Ingestion ───────────────────────────────────
+// Initial Network Ingestion
 async function loadInitialData() {
   try {
     const res = await fetch("/api/network");
@@ -360,7 +347,7 @@ async function loadInitialData() {
   }
 }
 
-// ─── Populate Select Controls ────────────────────────────────────
+// Populate Select Controls
 function populateDropdowns() {
   // 1. Source selector
   dom.selectSource.innerHTML = '<option value="">&mdash; Choose Affected Place &mdash;</option>';
@@ -406,7 +393,7 @@ function populateDropdowns() {
   });
 }
 
-// ─── Filter Chips Component ──────────────────────────────────────
+// Filter Chips Component
 function buildFilterChips() {
   dom.filterChipsContainer.innerHTML = "";
   for (const [typeKey, cfg] of Object.entries(FACILITY_CONFIG)) {
@@ -430,7 +417,7 @@ function buildFilterChips() {
   }
 }
 
-// ─── SVG Helper ──────────────────────────────────────────────────
+// SVG Helper
 const SVG_NS = "http://www.w3.org/2000/svg";
 function createSvg(tag, attrs = {}) {
   const el = document.createElementNS(SVG_NS, tag);
@@ -440,7 +427,7 @@ function createSvg(tag, attrs = {}) {
   return el;
 }
 
-// ─── Main Map Renderer ───────────────────────────────────────────
+// Main Map Renderer
 function renderMap() {
   renderRoadLines();
   renderRoadDistances();
@@ -565,13 +552,7 @@ function renderRoadDistances() {
   });
 }
 
-// ─── Label Collision Placement Logic ─────────────────────────────
-// Problem: In dense road networks, node names often overlap roads or neighboring labels.
-// Solution: We test 8 candidate offsets around the icon (N, NE, E, SE, S, SW, W, NW).
-// For each candidate spot, we calculate a bounding box around the text and count
-// how many previously placed label boxes it intersects with.
-// We choose the candidate offset with the fewest overlaps (ideally 0).
-// Labels are rendered with a beige halo stroke behind the text so they remain legible over roads.
+// Choose a nearby label position with the fewest overlaps.
 function renderNodesAndLabels() {
   dom.layerNodes.innerHTML = "";
   dom.layerNodeLabels.innerHTML = "";
@@ -723,7 +704,7 @@ function createNodeShape(node, color) {
   return shape;
 }
 
-// ─── Route Overlays (Green Original, Orange Detour) ──────────────
+// Route Overlays (Green Original, Orange Detour)
 function renderRouteOverlays() {
   dom.layerRoutesOverlay.innerHTML = "";
   if (!state.currentComparison) return;
@@ -764,7 +745,7 @@ function renderRouteOverlays() {
   }
 }
 
-// ─── Node Click Handler ──────────────────────────────────────────
+// Node Click Handler
 function handleNodeClick(node) {
   if (node.type === "shelter") {
     dom.selectDest.value = node.id;
@@ -780,7 +761,7 @@ function handleNodeClick(node) {
   renderNodesAndLabels();
 }
 
-// ─── Source & Destination Selection ──────────────────────────────
+// Source & Destination Selection
 async function handleSourceChange() {
   state.selectedSource = dom.selectSource.value;
   renderNodesAndLabels();
@@ -807,7 +788,7 @@ function handleDestChange() {
   }
 }
 
-// ─── Nearest Relief Services Grouping ────────────────────────────
+// Nearest Relief Services Grouping
 async function updateNearestServices(sourceId) {
   try {
     const res = await fetch("/api/services", {
@@ -894,13 +875,8 @@ async function updateNearestServices(sourceId) {
   }
 }
 
-// ─── Calculate Evacuation Route ──────────────────────────────────
-// API Interaction:
-//   1. If destination is 'auto', calls POST /api/shelters to find the closest reachable shelter.
-//   2. If 'Ensure visible detour' is checked and the corridor is unobstructed, calls
-//      POST /api/disrupt-route to simulate a realistic hazard along the path.
-//   3. Calls POST /api/compare with {source, destination} to compute both the baseline
-//      (all roads open) and revised (open roads only) routes, distance overhead, and detour %.
+// Calculate Evacuation Route
+// Find the destination if automatic, then request a route comparison.
 async function calculateRoute() {
   const source = dom.selectSource.value;
   let dest = dom.selectDest.value;
@@ -976,7 +952,7 @@ async function calculateRoute() {
   }
 }
 
-// ─── Render Results Card ─────────────────────────────────────────
+// Render Results Card
 function renderComparisonCard(comp) {
   dom.resultsEmptyState.style.display = "none";
   dom.resultsContentPanel.style.display = "block";
@@ -1065,7 +1041,7 @@ function renderWaypointsChain(container, pathArray) {
   });
 }
 
-// ─── Block / Restore Road Operations ─────────────────────────────
+// Block / Restore Road Operations
 async function toggleRoadBlock(roadId) {
   const road = state.roads.get(roadId);
   if (!road) return;
@@ -1142,7 +1118,7 @@ async function handleManualBlock() {
   await blockRoad(roadId, reason);
 }
 
-// ─── Seeded Scenario Application ─────────────────────────────────
+// Seeded Scenario Application
 async function applyScenario() {
   const severity = dom.selectSeverity.value;
   const seed = parseInt(dom.inputScenarioSeed.value, 10) || 2026;
@@ -1241,7 +1217,7 @@ function updateActiveObstructionsUI() {
   });
 }
 
-// ─── Multi-Source Coverage View ──────────────────────────────────
+// Multi-Source Coverage View
 async function handleCoverageToggle(e) {
   state.coverageActive = e.target.checked;
   if (state.coverageActive) {
@@ -1279,7 +1255,7 @@ async function fetchAndRenderCoverage() {
   }
 }
 
-// ─── Step-by-Step Dijkstra Stepper Visualizer ─────────────────────
+// Step-by-Step Dijkstra Stepper Visualizer
 async function openStepperModal() {
   const source = dom.selectSource.value;
   let dest = dom.selectDest.value;
@@ -1416,7 +1392,7 @@ function toggleStepPlay() {
   }
 }
 
-// ─── Clear Selections ────────────────────────────────────────────
+// Clear Selections
 function clearSelections() {
   dom.selectSource.value = "";
   dom.selectDest.value = "auto";
@@ -1506,7 +1482,7 @@ function handleVillageNeedUpdate() {
   dom.labelVillageTotalNeed.textContent = `Village Demand: ${totalUnits} units, ~${totalKg} kg total need (exceeds default payload capacity).`;
 }
 
-// ─── Plan Relief Truck Loading ───────────────────────────────────
+// Plan Relief Truck Loading
 // API Interaction:
 //   Calls POST /api/load-plan with {depotId, villageId, capacityKg}.
 //   The backend engine computes:
@@ -1717,7 +1693,7 @@ function showTripOnMap() {
   dom.mapViewport.scrollIntoView({ behavior: "smooth" });
 }
 
-// ─── Educational Knapsack Demo Visualizer ────────────────────────
+// Educational Knapsack Demo Visualizer
 // API Interaction:
 //   Calls GET /api/load-demo to fetch the fixed 50 kg DP worked example.
 //   Dynamically renders the full (4 x 51) 2D DP matrix table and highlights the exact

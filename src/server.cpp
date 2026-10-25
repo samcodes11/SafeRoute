@@ -1,32 +1,4 @@
-// server.cpp — REST API server for SafeRoute
-//
-// What this file does:
-//   Implements the embedded HTTP web server using the cpp-httplib single-header library.
-//   It serves static assets (HTML, CSS, JS, local woff2 fonts) from web/
-//   and registers 14 REST API endpoints exchanging JSON data with the frontend.
-//
-// What is inside:
-//   - sendError helper: constructs uniform JSON error payloads {"error": "..."}.
-//   - pathResultToJson helper: serializes PathResult structs into detailed JSON route objects.
-//   - startServer: sets up routes and mounts static file serving on the chosen port.
-//   - 14 REST Endpoints:
-//       1. GET  /api/network       — full network topology, node contacts/notes, road reasons
-//       2. POST /api/compare       — route comparison (original vs revised) with detour stats
-//       3. POST /api/shelters      — ranked evacuation shelters from a source location
-//       4. POST /api/services      — nearest facilities grouped by type (hospital, water, etc.)
-//       5. POST /api/block         — block a road with a specific disaster reason
-//       6. POST /api/restore       — restore a road to open status
-//       7. POST /api/reset         — clear all road blockages and reasons
-//       8. POST /api/scenario      — apply a seeded disaster scenario (Light, Moderate, Severe)
-//       9. POST /api/disrupt-route — automatically disrupt active route to force visible detour
-//      10. POST /api/trace         — step-by-step Dijkstra execution trace for visualizer
-//      11. GET  /api/coverage      — multi-source shelter coverage analysis
-//      12. GET  /api/supplies      — supply catalogue, village needs, and eligible depots
-//      13. POST /api/load-plan     — 0/1 knapsack DP with Dijkstra trip route
-//      14. GET  /api/load-demo     — canonical 50 kg DP worked example with full matrix
-//
-// Other files that use this file:
-//   - Called by src/main.cpp to start the web server in default mode.
+// Serves the SafeRoute web app and its JSON API.
 
 #include "../include/server.h"
 #include "../include/graph.h"
@@ -47,11 +19,8 @@
 // Type alias: makes nlohmann::json easier to write throughout the file
 using json = nlohmann::json;
 
-// ─── JSON Helper Functions ───────────────────────────────────────────────
 
 // Helper function to send uniform JSON error responses to the HTTP client.
-// Input:  httplib::Response& res, HTTP status code (e.g. 400, 500), error message string.
-// Output: Sets res.status and content to {"error": "..."}.
 static void sendError(httplib::Response& res, int status, const std::string& msg) {
     res.status = status;
     json j;
@@ -60,8 +29,6 @@ static void sendError(httplib::Response& res, int status, const std::string& msg
 }
 
 // Converts a PathResult struct into a structured JSON object with node details.
-// Input:  const PathResult& pr, const Graph& graph.
-// Output: JSON object with distance, reachable flag, and detailed waypoint array.
 static json pathResultToJson(const PathResult& pr, const Graph& graph) {
     json j;
     j["reachable"] = pr.reachable;
@@ -87,11 +54,8 @@ static json pathResultToJson(const PathResult& pr, const Graph& graph) {
     return j;
 }
 
-// ─── formatKnapsackResult ───────────────────────────────────────────────
 
 // Formats a KnapsackResult into JSON with item breakdowns and grouped manifest rows.
-// Input:  const KnapsackResult& kr (algorithm output).
-// Output: json object with totals, chosenItems, and grouped rows sorted by urgency.
 static json formatKnapsackResult(const KnapsackResult& kr) {
     json kJson;
     kJson["totalWeightKg"] = kr.totalWeightKg;
@@ -168,11 +132,8 @@ static json formatKnapsackResult(const KnapsackResult& kr) {
     return kJson;
 }
 
-// ─── startServer ─────────────────────────────────────────────────────────
 
 // Sets up HTTP routes, mounts static file hosting, and enters the server loop.
-// Input:  Graph& graph (active network), int port, const std::string& webRoot.
-// Output: None (blocks until process termination).
 void startServer(Graph& graph, int port, const std::string& webRoot) {
     // Create the httplib server instance
     httplib::Server svr;
@@ -186,11 +147,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         res.set_header("Pragma", "no-cache");
     });
 
-    // ── 1. GET /api/network ──────────────────────────────────────────────
-    // What it does: Returns the entire road network topology, nodes, roads, and hazard reasons.
-    // Request:  GET /api/network (no body)
-    // Response: {"nodes": [...], "roads": [...], "reasons": [...]}
-    // Errors:   Returns HTTP 500 on internal exception.
+    // Returns the entire road network topology, nodes, roads, and hazard reasons.
     svr.Get("/api/network", [&graph](const httplib::Request&, httplib::Response& res) {
         try {
             json j;
@@ -234,13 +191,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 2. POST /api/compare ─────────────────────────────────────────────
-    // What it does: Computes and compares the baseline route (all roads open) against
-    //               the revised route (open roads only) and identifies which obstructions
-    //               affected the original path.
-    // Request:  POST /api/compare with {"source": "v1", "destination": "s1"}
-    // Response: {"original": {...}, "revised": {...}, "extraKm": 7.0, ...}
-    // Errors:   HTTP 400 on malformed JSON or unknown nodes; HTTP 500 on internal errors.
+    // Compares routes with all roads open and with current road closures.
     svr.Post("/api/compare", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             // Parse JSON request body
@@ -347,12 +298,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 3. POST /api/shelters ────────────────────────────────────────────
-    // What it does: Ranks all evacuation shelters in order of shortest road distance
-    //               from the specified source location.
-    // Request:  POST /api/shelters with {"source": "v1"}
-    // Response: {"source": "v1", "shelters": [{"id": "s1", "distance": 7.0, ...}, ...]}
-    // Errors:   HTTP 400 on missing or invalid source node; HTTP 500 on internal errors.
+    // Ranks all evacuation shelters in order of shortest road distance
     svr.Post("/api/shelters", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -422,12 +368,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 4. POST /api/services ────────────────────────────────────────────
-    // What it does: Finds the closest 3 relief facilities of each category (hospitals,
-    //               water stations, food depots, rescue outposts, etc.) from a source.
-    // Request:  POST /api/services with {"source": "v1"}
-    // Response: {"source": "v1", "services": {"hospital": [...], "water": [...], ...}}
-    // Errors:   HTTP 400 on invalid source; HTTP 500 on internal failure.
+    // Finds nearby relief facilities grouped by category.
     svr.Post("/api/services", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -480,11 +421,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 5. POST /api/block ───────────────────────────────────────────────
-    // What it does: Closes a specific road segment and attaches a hazard reason.
-    // Request:  POST /api/block with {"road": "r1", "reason": "Flooded road"}
-    // Response: {"status": "ok", "road": "r1", "blocked": true, "reason": "Flooded road"}
-    // Errors:   HTTP 400 if road ID is missing or not found; HTTP 500 on internal error.
+    // Closes a specific road segment and attaches a hazard reason.
     svr.Post("/api/block", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -525,11 +462,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 6. POST /api/restore ─────────────────────────────────────────────
-    // What it does: Reopens a blocked road segment and clears its reason string.
-    // Request:  POST /api/restore with {"road": "r1"}
-    // Response: {"status": "ok", "road": "r1", "blocked": false}
-    // Errors:   HTTP 400 if road ID is unknown; HTTP 500 on internal error.
+    // Reopens a blocked road segment and clears its reason string.
     svr.Post("/api/restore", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -563,11 +496,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 7. POST /api/reset ───────────────────────────────────────────────
-    // What it does: Restores every road in the network to open and clears all reasons.
-    // Request:  POST /api/reset (no body required)
-    // Response: {"status": "ok", "message": "All road obstructions cleared."}
-    // Errors:   HTTP 500 on internal error.
+    // Restores every road in the network to open and clears all reasons.
     svr.Post("/api/reset", [&graph](const httplib::Request&, httplib::Response& res) {
         try {
             graph.resetAllRoads();
@@ -580,11 +509,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 8. POST /api/scenario ────────────────────────────────────────────
-    // What it does: Applies a seeded disaster scenario (Light ~8%, Moderate ~15%, Severe ~25%).
-    // Request:  POST /api/scenario with optional {"severity": "moderate", "seed": 2026}
-    // Response: {"severity": "moderate", "seed": 2026, "blockedCount": 14, "blockedRoads": [...]}
-    // Errors:   HTTP 500 on internal error.
+    // Applies a seeded disaster scenario (Light ~8%, Moderate ~15%, Severe ~25%).
     svr.Post("/api/scenario", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -636,12 +561,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 9. POST /api/disrupt-route ───────────────────────────────────────
-    // What it does: Artificially places simulated hazards on the active evacuation path
-    //               so the user can immediately test a recalculated detour corridor.
-    // Request:  POST /api/disrupt-route with {"source": "v1", "destination": "s1", "seed": 42}
-    // Response: {"disrupted": true, "message": "...", "blockedRoadIds": [...], ...}
-    // Errors:   HTTP 400 on missing parameters; HTTP 500 on internal failure.
+    // Artificially places simulated hazards on the active evacuation path
     svr.Post("/api/disrupt-route", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -675,12 +595,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 10. POST /api/trace ──────────────────────────────────────────────
-    // What it does: Executes Dijkstra's algorithm step by step and returns snapshots
-    //               of priority queue states, edge relaxations, and distance maps.
-    // Request:  POST /api/trace with {"source": "v1", "destination": "s1"}
-    // Response: {"source": "v1", "steps": [{"stepIndex": 1, "action": "pop", ...}, ...]}
-    // Errors:   HTTP 400 on missing or invalid nodes; HTTP 500 on internal error.
+    // Executes Dijkstra's algorithm step by step and returns snapshots
     svr.Post("/api/trace", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -753,12 +668,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 11. GET /api/coverage ────────────────────────────────────────────
-    // What it does: Runs multi-source Dijkstra from all shelters simultaneously to
-    //               determine which shelter covers each village and flag cut-offs.
-    // Request:  GET /api/coverage (no body)
-    // Response: {"totalVillages": 18, "coveredVillages": 18, "villageCoverages": [...]}
-    // Errors:   HTTP 500 on internal failure.
+    // Uses all shelters as starting points to find village coverage.
     svr.Get("/api/coverage", [&graph](const httplib::Request&, httplib::Response& res) {
         try {
             auto cov = graph.computeCoverage();
@@ -788,12 +698,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 12. GET /api/supplies ────────────────────────────────────────────
-    // What it does: Returns the 10-item disaster relief catalogue, surveyed village needs,
-    //               and eligible origin depots (NGO relief camps and food centres).
-    // Request:  GET /api/supplies (no body)
-    // Response: {"catalogue": [...], "villageNeeds": {...}, "depots": [...], "villages": [...]}
-    // Errors:   HTTP 500 if data/supplies.json or data/village_needs.json is missing.
+    // Returns relief items, village needs, and eligible depots.
     svr.Get("/api/supplies", [&graph](const httplib::Request&, httplib::Response& res) {
         try {
             json suppliesData;
@@ -854,12 +759,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 13. POST /api/load-plan ──────────────────────────────────────────
-    // What it does: Computes the delivery trip route via Dijkstra on open roads and solves
-    //               relief truck loading using 0/1 Knapsack DP (optimal).
-    // Request:  POST /api/load-plan with {"depotId": "ngo1", "villageId": "v1", "capacityKg": 200}
-    // Response: {"reachable": true, "distance": 12.4, "dp": {...}}
-    // Errors:   HTTP 400 on invalid depot, village, or capacity; HTTP 500 on internal failure.
+    // Finds the delivery route and chooses relief items with knapsack DP.
     svr.Post("/api/load-plan", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
             json body;
@@ -979,14 +879,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
         }
     });
 
-    // ── 14. GET /api/load-demo ───────────────────────────────────────────
-    // What it does: Returns a fixed pedagogical worked example for 0/1 Knapsack DP
-    //               along with the full 2D DP matrix and backtracking coordinates.
-    // Setup:    Capacity: 50 kg.
-    //           Items: Medical kit (10kg, 60), Blankets (20kg, 100), Water (30kg, 120).
-    //           DP picks: Blankets + Water = 50kg, Urgency 220.
-    // Request:  GET /api/load-demo (no body)
-    // Response: {"capacityKg": 50, "items": [...], "dp": {...}}
+    // Returns a fixed pedagogical worked example for 0/1 Knapsack DP
     svr.Get("/api/load-demo", [](const httplib::Request&, httplib::Response& res) {
         try {
             int capacity = 50;

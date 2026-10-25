@@ -1,29 +1,10 @@
-// main.cpp — Entry point for SafeRoute
-//
-// What this file does:
-//   Serves as the main program entry point. It parses command-line arguments and
-//   runs SafeRoute in one of two modes:
-//     1. Web server mode (default): starts the embedded HTTP server on port 8080
-//        and serves the web application to browser clients.
-//     2. CLI mode (--cli flag): launches an interactive terminal menu allowing a
-//        student or operator to test shortest paths, detours, road blockages,
-//        scenarios, and shelter coverage directly without opening a browser.
-//
-// What is inside:
-//   - runCli: interactive console loop offering 11 disaster management actions.
-//   - main: argument parsing (--cli, --port, --data, --web), data loading, and mode dispatch.
-//
-// Other files that use this file:
-//   - Compiled directly as the main application binary: saferoute.
+// Starts SafeRoute in web-server mode or interactive CLI mode.
 
 #include "../include/graph.h"
 #include "../include/dijkstra.h"
 #include "../include/server.h"
 
-// C++ feature note:
-// <iostream> provides std::cout, std::cin, and std::cerr for terminal input/output.
-// <iomanip> provides formatting manipulators like std::setw and std::setprecision.
-// <cstdlib> provides std::atoi for converting text strings to integers.
+// These headers provide console input, formatting, and number conversion.
 #include <iostream>
 #include <string>
 #include <vector>
@@ -31,17 +12,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-// ─── CLI Mode ────────────────────────────────────────────────────────────
-
-// Runs an interactive text-based console interface for testing graph operations.
-//
-// How it works:
-//   Displays a numbered menu in an infinite while-loop until the user enters 0.
-//   Each choice prompts for needed parameters (e.g. source and destination node IDs)
-//   and executes the corresponding C++ graph or Dijkstra function.
-//
-// Input:  Graph& graph (active network loaded from network.json).
-// Output: Prints results directly to standard output (std::cout).
+// Show the text menu until the user chooses to quit.
 static void runCli(Graph& graph) {
     std::cout << "\n======================================" << std::endl;
     std::cout << "  SafeRoute — CLI Mode" << std::endl;
@@ -329,17 +300,7 @@ static void runCli(Graph& graph) {
     }
 }
 
-// ─── main ────────────────────────────────────────────────────────────────
-
-// Application startup entry point.
-//
-// How it works:
-//   1. Parses command-line flags (--cli, --port, --data, --web, --help).
-//   2. Loads the road network from JSON (default "data/network.json").
-//   3. Dispatches execution to runCli if --cli was provided, or starts the web server.
-//
-// Input:  Command-line arguments (argc, argv).
-// Output: Integer exit status (0 on success, 1 on initialization failure).
+// Parse options, load the network, and start the selected mode.
 int main(int argc, char* argv[]) {
     bool cliMode = false;
     int port = 8080;

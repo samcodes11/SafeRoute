@@ -1,29 +1,11 @@
-// test_main.cpp — Automated assert-based test runner for SafeRoute
-//
-// What this file does:
-//   Contains the standalone automated test suite for the SafeRoute system.
-//   It verifies graph loading, Dijkstra routing, detour recalculation, cut-off isolation,
-//   hazard reason tracking, PRNG scenario reproducibility, multi-source coverage equivalence,
-//   trace visualizer fidelity, exception handling, and 0/1 Knapsack relief loading guarantees.
-//
-// What is inside:
-//   - Test counting and reporting harness (runTest, approxEqual).
-//   - Hand-crafted 7-node, 8-road test graph (buildSmallTestGraph) for isolated unit tests.
-//   - Tests 1-14: Graph routing, scenarios, nearest services, coverage, and error handling.
-//   - Tests 15-23: 0/1 Knapsack DP, brute-force benchmark, and limits.
-//   - main: runs all 23 tests sequentially and returns exit code 0 on complete pass.
-//
-// Other files that use this file:
-//   - Compiled directly as the test_runner executable.
+// Tests graph routing and 0/1 Knapsack loading.
 
 #include "../include/graph.h"
 #include "../include/dijkstra.h"
 #include "../include/knapsack.h"
 #include "../third_party/json.hpp"
 
-// C++ feature note:
-// <functional> provides std::function to pass test functions as callable arguments.
-// <cmath> provides std::fabs for floating-point absolute difference comparison.
+// These headers support the test functions and generated test cases.
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -34,14 +16,12 @@
 #include <set>
 #include <random>
 
-// ─── Test Counters ───────────────────────────────────────────────────────
-// Global counters tracking test execution statistics
+// Count test results for the final summary.
 static int totalTests = 0;
 static int passedTests = 0;
 static int failedTests = 0;
 
-// Test execution harness: catches any unexpected exceptions and prints [PASS] or [FAIL].
-// Input:  test name string, callable boolean test function.
+// Run one test and record whether it passes.
 static void runTest(const std::string& name, std::function<bool()> testFn) {
     totalTests++;
     try {
@@ -62,26 +42,12 @@ static void runTest(const std::string& name, std::function<bool()> testFn) {
     }
 }
 
-// Floating-point equality comparison within an epsilon tolerance (default 1e-9).
-// Necessary because double precision calculations may have microscopic rounding artifacts.
+// Compare floating-point values with a small tolerance.
 static bool approxEqual(double a, double b, double eps = 1e-9) {
     return std::fabs(a - b) < eps;
 }
 
-// ─── Hand-Crafted Small Graph for Targeted Unit Tests ────────────────────
-
-// Builds a predictable 7-node, 8-road test topology with known ground-truth distances.
-// Layout:
-//   v1 (0,0) ----(3km:r1)----> v2 (100,0) ----(4km:r2)----> s1 (200,0)
-//    |                          |                            |
-//  (2km:r3)                   (5km:r4)                     (6km:r7)
-//    |                          |                            |
-//    v                          v                            v
-//   h1 (0,100) --(4km:r5)----> j1 (100,100) --(2km:r6)----> s2 (200,100)
-//    |
-//  (3km:r8)
-//    v
-//   w1 (0,200)
+// Build a small graph with known routes for isolated tests.
 static Graph buildSmallTestGraph() {
     Graph g;
     g.addNode({"v1", "Village 1", NodeType::Village, 0, 0, "00000 00001", "Note 1"});
@@ -104,10 +70,9 @@ static Graph buildSmallTestGraph() {
     return g;
 }
 
-// ─── Tests 1-14: Routing, Scenarios & Coverage ───────────────────────────
+// Routing and network tests.
 
 // Test 1: Checks standard shortest path calculation on an unobstructed network.
-// Why it matters: Proves Dijkstra finds the true optimal corridor (v1 -> v2 -> s1 = 7.0 km).
 static bool testNormalRoute() {
     Graph g = buildSmallTestGraph();
     PathResult res = dijkstraShortestPath(g, "v1", "s1");
@@ -118,7 +83,6 @@ static bool testNormalRoute() {
 }
 
 // Test 2: Checks that blocking the primary bridge forces the algorithm to find a longer detour.
-// Why it matters: Validates that SafeRoute routes traffic around hazards (7.0 km -> 14.0 km).
 static bool testBlockedRoadDetour() {
     Graph g = buildSmallTestGraph();
     g.blockRoad("r2", "Flooded road");
@@ -130,7 +94,6 @@ static bool testBlockedRoadDetour() {
 }
 
 // Test 3: Checks that total ingress block correctly marks a node as unreachable.
-// Why it matters: Ensures responders are alerted when a community is completely isolated.
 static bool testUnreachable() {
     Graph g = buildSmallTestGraph();
     g.blockRoad("r1", "Bridge damaged");
@@ -143,7 +106,6 @@ static bool testUnreachable() {
 }
 
 // Test 4: Checks the edge case where source equals destination.
-// Why it matters: Distance must be exactly 0 km and path must contain only the source node.
 static bool testSourceEqualsDestination() {
     Graph g = buildSmallTestGraph();
     PathResult res = dijkstraShortestPath(g, "v1", "v1");
@@ -154,7 +116,6 @@ static bool testSourceEqualsDestination() {
 }
 
 // Test 5: Checks that hazard reason strings are stored on road block and cleared on restore.
-// Why it matters: Verifies that responders see accurate operational reasons for closures.
 static bool testReasonStorage() {
     Graph g = buildSmallTestGraph();
     g.blockRoad("r1", "Waterlogging");
@@ -174,7 +135,6 @@ static bool testReasonStorage() {
 }
 
 // Test 6: Checks that the same scenario seed produces the exact same road blockages.
-// Why it matters: PRNG reproducibility is essential for repeatable simulation drills and grading.
 static bool testScenarioSeedReproducibility() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -191,7 +151,6 @@ static bool testScenarioSeedReproducibility() {
 }
 
 // Test 7: Checks that Light and Moderate disaster scenarios preserve shelter connectivity.
-// Why it matters: Training scenarios must keep all communities connected unless Severe is chosen.
 static bool testLightAndModerateShelterConnectivity() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -209,7 +168,6 @@ static bool testLightAndModerateShelterConnectivity() {
 }
 
 // Test 8: Checks nearest relief services grouping and distance sorting.
-// Why it matters: Proves closest hospital (h1: 2km), water (w1: 5km), and shelter (s1: 7km) match.
 static bool testNearestServiceCorrectness() {
     Graph g = buildSmallTestGraph();
     auto services = g.getNearestServices("v1");
@@ -227,7 +185,6 @@ static bool testNearestServiceCorrectness() {
 }
 
 // Test 9: Checks that multi-source Dijkstra matches the minimum of individual Dijkstra runs.
-// Why it matters: Proves that the single-pass multi-source optimization is mathematically sound.
 static bool testMultiSourceCoverageEquivalence() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -259,7 +216,6 @@ static bool testMultiSourceCoverageEquivalence() {
 }
 
 // Test 10: Checks that the stepper trace recorder produces results identical to standard Dijkstra.
-// Why it matters: Proves the educational stepper displays the real routing path without bugs.
 static bool testTraceParity() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -285,7 +241,6 @@ static bool testTraceParity() {
 }
 
 // Test 11: Checks that disrupt-route only selects roads that actually lie on the active path.
-// Why it matters: Artificial disruptions must force a detour on the active route, not elsewhere.
 static bool testDisruptRouteRoadCheck() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -306,7 +261,6 @@ static bool testDisruptRouteRoadCheck() {
 }
 
 // Test 12: Checks robust exception handling for invalid IDs and negative road distances.
-// Why it matters: Ensures the engine throws clean, catchable errors rather than crashing.
 static bool testErrorHandling() {
     Graph g = buildSmallTestGraph();
 
@@ -338,7 +292,6 @@ static bool testErrorHandling() {
 }
 
 // Test 13: Checks that reopening a road restores the original optimal shortest route.
-// Why it matters: Verifies dynamic road restoration during disaster recovery operations.
 static bool testRestoreRoad() {
     Graph g = buildSmallTestGraph();
     PathResult orig = dijkstraShortestPath(g, "v1", "s1");
@@ -356,7 +309,6 @@ static bool testRestoreRoad() {
 }
 
 // Test 14: Validates parsing and node/road thresholds on the full network.json data file.
-// Why it matters: Guarantees that the real production dataset loads cleanly with all facilities.
 static bool testLoadNetworkJson() {
     Graph g;
     g.loadFromFile("data/network.json");
@@ -367,10 +319,9 @@ static bool testLoadNetworkJson() {
     return true;
 }
 
-// ─── Tests 15-23: Knapsack Relief Truck Loading ──────────────────────────
+// Knapsack loading tests.
 
 // Test 15: Checks that 0/1 Knapsack DP matches the brute-force exact optimum on 50 random cases.
-// Why it matters: Formally proves that solveKnapsackDP finds the absolute mathematical maximum.
 static bool testKnapsackDPEqualsBruteForce() {
     std::mt19937 rng(42);
     std::uniform_int_distribution<int> nDist(3, 11);
@@ -403,7 +354,6 @@ static bool testKnapsackDPEqualsBruteForce() {
 }
 
 // Test 16: Verifies the 50 kg DP worked example (DP = 220 urgency, 50 kg, table 4x51).
-// Why it matters: Confirms DP optimal choice and full table dimensions for pedagogical demonstration.
 static bool testKnapsackDemoDP() {
     int cap = 50;
     std::vector<SupplyItem> items = {
@@ -433,7 +383,6 @@ static bool testKnapsackDemoDP() {
 }
 
 // Test 17: Checks edge case where truck capacity is 0 kg.
-// Why it matters: Verifies that a zero-capacity vehicle correctly loads 0 items with 0 urgency.
 static bool testKnapsackCapacityZero() {
     std::vector<SupplyItem> items = {
         {"Water crate", 12, 90},
@@ -449,7 +398,6 @@ static bool testKnapsackCapacityZero() {
 }
 
 // Test 18: Checks that items heavier than total capacity are never loaded.
-// Why it matters: Ensures overweight items are cleanly rejected without memory issues.
 static bool testKnapsackItemsHeavierThanCapacityNeverChosen() {
     std::vector<SupplyItem> items = {
         {"Heavy Generator", 60, 200},
@@ -466,7 +414,6 @@ static bool testKnapsackItemsHeavierThanCapacityNeverChosen() {
 }
 
 // Test 19: Checks that if all candidate items fit on the truck, all are chosen.
-// Why it matters: Verifies optimal packing when capacity is sufficiently abundant.
 static bool testKnapsackAllItemsFit() {
     std::vector<SupplyItem> items = {
         {"Med Kit", 8, 100},
@@ -485,7 +432,6 @@ static bool testKnapsackAllItemsFit() {
 }
 
 // Test 20: Checks that chosen cargo weight never exceeds truck capacity across 50 random runs.
-// Why it matters: Confirms that physical payload safety constraints are strictly respected.
 static bool testKnapsackChosenWeightNeverExceedsCapacity() {
     std::mt19937 rng(777);
     std::uniform_int_distribution<int> nDist(10, 50);
@@ -518,7 +464,6 @@ static bool testKnapsackChosenWeightNeverExceedsCapacity() {
 }
 
 // Test 21: Checks that invalid inputs (negative weights, capacity > 5000, etc.) throw exceptions.
-// Why it matters: Validates that error conditions are caught early before invalid memory access.
 static bool testKnapsackInvalidInputs() {
     std::vector<SupplyItem> validItems = {{"Item 1", 10, 50}};
 
@@ -566,7 +511,6 @@ static bool testKnapsackInvalidInputs() {
 }
 
 // Test 22: Checks that an unreachable destination returns reachable: false without crashing.
-// Why it matters: Proves that relief load planning handles severed road connections safely.
 static bool testKnapsackUnreachableVillageRoute() {
     Graph g = buildSmallTestGraph();
     // Block r1 and r3 so v1 is isolated
@@ -582,8 +526,6 @@ static bool testKnapsackUnreachableVillageRoute() {
 }
 
 // Test 23: Checks that manifest rows aggregate correctly and totals match reported values.
-// Why it matters: Guarantees that grouped cargo item rows never deviate from total weight/urgency
-//                 and that capacity limits are strictly obeyed across multiple village scenarios.
 static bool testManifestBreakdownIntegrity() {
     std::ifstream needFile("data/village_needs.json");
     if (!needFile.is_open()) return false;
@@ -647,10 +589,7 @@ static bool testManifestBreakdownIntegrity() {
     return true;
 }
 
-// ─── Main ────────────────────────────────────────────────────────────────
-
-// Test suite runner: runs all 23 unit tests and reports aggregated pass/fail statistics.
-// Output: 0 if all tests pass; 1 if any test fails.
+// Run every test and print the summary.
 int main() {
     std::cout << "\n========================================" << std::endl;
     std::cout << "  SafeRoute — Automated Test Suite" << std::endl;

@@ -1,43 +1,15 @@
-// graph.h — Road network graph structure for SafeRoute
-//
-// What this file does:
-//   Defines the core data structures for modeling a disaster road network.
-//   It stores nodes (villages, hospitals, shelters) and roads as a graph.
-//   It also declares operations like loading network files, blocking roads,
-//   generating disaster scenarios, and finding nearest relief services.
-//
-// What is inside:
-//   - NodeType enum: all facility categories.
-//   - Node struct: a single map location with coordinates and details.
-//   - Road struct: an undirected connection between two nodes with length in km.
-//   - Result structs: ScenarioResult, ServiceEntry, CoverageResult, DisruptResult.
-//   - Graph class: manages nodes, roads, adjacency list, and graph queries.
-//
-// Other files that use this header:
-//   - src/graph.cpp: implements all the member functions declared here.
-//   - include/dijkstra.h & src/dijkstra.cpp: queries graph nodes, roads, and neighbors.
-//   - include/server.h & src/server.cpp: exposes graph operations as HTTP endpoints.
-//   - src/main.cpp: runs the interactive terminal CLI and web server startup.
-//   - tests/test_main.cpp: runs automated unit tests on graph operations.
-
-// Include guard: prevents compiler errors if this header is included more than once.
+// Defines graph data and operations for the road network.
 #ifndef SAFEROUTE_GRAPH_H
 #define SAFEROUTE_GRAPH_H
 
-// C++ feature note:
-// <string> provides text strings.
-// <vector> is a dynamic array that grows automatically as items are added.
-// <unordered_map> is a hash table giving average O(1) fast key-value lookups.
-// <stdexcept> provides standard exception types like std::invalid_argument.
-// <utility> provides std::pair to hold two values together.
+// These headers provide strings, containers, and standard exceptions.
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <stdexcept>
 #include <utility>
 
-// ─── Node Types ──────────────────────────────────────────────────────────
-// C++ feature: 'enum class' creates a type-safe list of named choices.
+// The types of places in the network.
 // It stops accidental conversion to numbers and keeps names scoped inside NodeType.
 enum class NodeType {
     Village,      // Community needing evacuation or relief supplies delivery

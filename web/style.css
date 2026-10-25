@@ -1,22 +1,5 @@
-/*
- * style.css — SafeRoute Visual Design System & Cartographic Theme
- *
- * Palette: Warm beige, formal aesthetic with paper texture
- * - Background: #F4ECDD with subtle inline paper grain & warm vignette
- * - Cards: #FBF6EC with layered soft shadows (18px radius)
- * - Borders: #E3D6BE
- * - Primary Text: #3A2E26 (High contrast > 7:1)
- * - Muted Text: #6B5B4E (Contrast > 4.8:1)
- * - Primary Accent (Terracotta): #C2542D
- * - Baseline Green: #2F7D4F
- * - Obstruction Crimson: #A8281E
- *
- * Typography:
- * - Headings & Hero Metrics: Fraunces (serif) with Georgia fallback
- * - Body, Controls & Map: DM Sans (sans-serif) with system-ui fallback
- */
-
-/* ─── Typography & Font Faces ───────────────────────────────────── */
+/* Styles the SafeRoute web interface. */
+/* Typography & Font Faces */
 @font-face {
   font-family: "Fraunces";
   src: url("fonts/fraunces-700.woff2") format("woff2");
@@ -57,7 +40,7 @@
   font-display: swap;
 }
 
-/* ─── Base Reset & Paper Grain Background ───────────────────────── */
+/* Base Reset & Paper Grain Background */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -92,7 +75,7 @@ h1, h2, h3, h4, .serif-heading {
   font-weight: 700;
 }
 
-/* ─── Application Header & Navigation Bar ───────────────────────── */
+/* Application Header & Navigation Bar */
 .app-header {
   background: rgba(251, 246, 236, 0.94);
   backdrop-filter: blur(10px);
@@ -183,7 +166,7 @@ h1, h2, h3, h4, .serif-heading {
   gap: 10px;
 }
 
-/* ─── Main Content Container ────────────────────────────────────── */
+/* Main Content Container */
 .main-content {
   width: 100%;
   max-width: 1440px;
@@ -200,7 +183,7 @@ h1, h2, h3, h4, .serif-heading {
   display: block;
 }
 
-/* ─── Cards System (18px Radius & Soft Shadows) ─────────────────── */
+/* Cards System (18px Radius & Soft Shadows) */
 .card {
   background: #FBF6EC;
   border: 1px solid #E3D6BE;
@@ -250,7 +233,7 @@ h1, h2, h3, h4, .serif-heading {
   padding: 22px 24px;
 }
 
-/* ─── Two-Column Planner Grid ───────────────────────────────────── */
+/* Two-Column Planner Grid */
 .planner-grid {
   display: grid;
   grid-template-columns: 1fr 390px;
@@ -264,7 +247,7 @@ h1, h2, h3, h4, .serif-heading {
   }
 }
 
-/* ─── Map Card & Interactive SVG ────────────────────────────────── */
+/* Map Card & Interactive SVG */
 .map-toolbar {
   display: flex;
   align-items: center;
@@ -409,7 +392,7 @@ h1, h2, h3, h4, .serif-heading {
   border-radius: 2px;
 }
 
-/* ─── SVG Map Road & Node Styling ───────────────────────────────── */
+/* SVG Map Road & Node Styling */
 .road-line {
   stroke: #D0C3AA;
   stroke-width: 2.5;
@@ -506,7 +489,7 @@ h1, h2, h3, h4, .serif-heading {
   }
 }
 
-/* ─── Forms and Control Panel ───────────────────────────────────── */
+/* Forms and Control Panel */
 .control-section {
   display: flex;
   flex-direction: column;
@@ -560,7 +543,7 @@ h1, h2, h3, h4, .serif-heading {
   accent-color: #C2542D;
 }
 
-/* ─── Buttons System ────────────────────────────────────────────── */
+/* Buttons System */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -640,7 +623,7 @@ h1, h2, h3, h4, .serif-heading {
   flex: 1;
 }
 
-/* ─── Results Card Metrics & Comparison Bars ────────────────────── */
+/* Results Card Metrics & Comparison Bars */
 .results-hero-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -770,7 +753,7 @@ h1, h2, h3, h4, .serif-heading {
   color: #8E2920;
 }
 
-/* ─── Waypoints Chain ───────────────────────────────────────────── */
+/* Waypoints Chain */
 .waypoints-chain {
   display: flex;
   flex-wrap: wrap;
@@ -794,7 +777,7 @@ h1, h2, h3, h4, .serif-heading {
   font-size: 12px;
 }
 
-/* ─── Active Obstructions List ──────────────────────────────────── */
+/* Active Obstructions List */
 .obstruction-list {
   list-style: none;
   display: flex;
@@ -828,7 +811,7 @@ h1, h2, h3, h4, .serif-heading {
   font-weight: 500;
 }
 
-/* ─── Nearest Services Accordion ────────────────────────────────── */
+/* Nearest Services Accordion */
 .services-container {
   display: flex;
   flex-direction: column;
@@ -901,7 +884,7 @@ h1, h2, h3, h4, .serif-heading {
   text-decoration: underline;
 }
 
-/* ─── Knapsack Relief Loading UI ────────────────────────────────── */
+/* Knapsack Relief Loading UI */
 .knapsack-comparison-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1036,7 +1019,7 @@ h1, h2, h3, h4, .serif-heading {
   border: 2px solid #2F7D4F;
 }
 
-/* ─── Stepper Modal Visualizer ──────────────────────────────────── */
+/* Stepper Modal Visualizer */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1117,7 +1100,7 @@ h1, h2, h3, h4, .serif-heading {
   letter-spacing: 0.05em;
 }
 
-/* ─── Coverage View Panel ───────────────────────────────────────── */
+/* Coverage View Panel */
 .coverage-summary-bar {
   display: flex;
   align-items: center;
@@ -1129,7 +1112,7 @@ h1, h2, h3, h4, .serif-heading {
   margin-bottom: 14px;
 }
 
-/* ─── Floating Toast Messages ───────────────────────────────────── */
+/* Floating Toast Messages */
 .toast-msg {
   position: fixed;
   bottom: 24px;
@@ -1156,7 +1139,7 @@ h1, h2, h3, h4, .serif-heading {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── Reduced Motion Support ────────────────────────────────────── */
+/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -1166,7 +1149,7 @@ h1, h2, h3, h4, .serif-heading {
   }
 }
 
-/* ─── Print Stylesheet (window.print()) ──────────────────────────── */
+/* Print Stylesheet (window.print()) */
 @media print {
   body {
     background: #FFFFFF !important;
@@ -1204,9 +1187,7 @@ h1, h2, h3, h4, .serif-heading {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   TAB 2: RELIEF LOADING (0/1 KNAPSACK) STYLES
-   ═══════════════════════════════════════════════════════════════════ */
+/* Relief loading styles */
 .loading-grid {
   display: grid;
   grid-template-columns: 380px 1fr;

@@ -1,34 +1,9 @@
-// graph.cpp — Graph data structures and disaster network operations
-//
-// What this file does:
-//   Implements the Graph class and network algorithms declared in include/graph.h.
-//   It manages the road network topology, loads and validates data from network.json,
-//   handles road blockages and restorations, generates reproducible disaster scenarios,
-//   checks connectivity using BFS, and computes shelter coverage and nearest relief posts.
-//
-// What is inside:
-//   - STANDARD_REASONS: fixed list of flood and disaster blockage descriptions.
-//   - String conversion helpers for NodeType enum values.
-//   - Graph::loadFromFile: JSON ingestion with strict structural and sanity checks.
-//   - Look-ups: getNode, hasNode, getShelters, getRoad, getNeighbours.
-//   - Modifiers: blockRoad, restoreRoad, resetAllRoads, addNode, addRoad, clear.
-//   - Scenario generator: applyScenario using std::mt19937 with seed reproducibility.
-//   - Connectivity helpers: hasPath (BFS) and checkAllVillagesHaveShelter.
-//   - Facility analysis: getNearestServices, computeCoverage, and disruptRoute.
-//
-// Other files that use this file:
-//   - Linked directly into the saferoute server executable and test_runner.
+// Stores the road network and provides its supporting graph operations.
 
 #include "../include/graph.h"
 #include "../include/dijkstra.h"
 #include "../third_party/json.hpp"
 
-// C++ feature note:
-// <fstream> provides file streams (std::ifstream) to read files from disk.
-// <random> provides pseudo-random number generators like std::mt19937.
-// <algorithm> provides standard algorithms like std::sort and std::shuffle.
-// <queue> provides std::queue for Breadth-First Search (BFS).
-// <set> provides std::set, an ordered collection with O(log n) lookup.
 #include <fstream>
 #include <stdexcept>
 #include <random>
@@ -40,7 +15,6 @@
 // Type alias: makes nlohmann::json easier to write throughout the file
 using json = nlohmann::json;
 
-// ─── Standard Fixed Disaster Obstruction Reasons ─────────────────────────
 // A fixed list of realistic hazards used when roads are blocked during simulations.
 // C++ feature: 'static' means this variable is visible only within this .cpp file.
 static const std::vector<std::string> STANDARD_REASONS = {
@@ -55,16 +29,12 @@ static const std::vector<std::string> STANDARD_REASONS = {
 };
 
 // Returns a reference to the static list of standard hazard reasons.
-// Output: Read-only reference to vector of strings.
 const std::vector<std::string>& Graph::getStandardReasons() {
     return STANDARD_REASONS;
 }
 
-// ─── Node Type Helpers ───────────────────────────────────────────────────
 
 // Converts a NodeType enum value into a lowercase wire string for JSON output.
-// Input:  NodeType enum value.
-// Output: Lowercase string (e.g. "village", "shelter").
 std::string nodeTypeToString(NodeType type) {
     switch (type) {
         case NodeType::Village:     return "village";
@@ -81,9 +51,6 @@ std::string nodeTypeToString(NodeType type) {
 }
 
 // Parses a lowercase wire string from JSON into a strongly typed NodeType enum.
-// Input:  String representing the facility category.
-// Output: Corresponding NodeType enum value.
-// Errors: Throws std::invalid_argument if the string does not match any known type.
 NodeType stringToNodeType(const std::string& str) {
     if (str == "village")      return NodeType::Village;
     if (str == "junction")     return NodeType::Junction;
@@ -98,8 +65,6 @@ NodeType stringToNodeType(const std::string& str) {
 }
 
 // Returns a user-friendly display title suitable for labels in the web UI.
-// Input:  NodeType enum value.
-// Output: Capitalized display string (e.g. "Evacuation Shelter").
 std::string nodeTypeToDisplayName(NodeType type) {
     switch (type) {
         case NodeType::Village:     return "Village";
@@ -115,14 +80,8 @@ std::string nodeTypeToDisplayName(NodeType type) {
     return "Facility";
 }
 
-// ─── Graph Loading from JSON ─────────────────────────────────────────────
 
 // Loads network nodes and roads from a JSON file into internal memory structures.
-// Input:  Relative or absolute path to network.json.
-// Output: None (populates nodes_, roads_, and adjList_).
-// Errors: Throws std::runtime_error on file not found, invalid JSON, missing fields,
-//         duplicate IDs, or non-positive road distances.
-// Time:   O(V + E) where V is the number of nodes and E is the number of roads.
 void Graph::loadFromFile(const std::string& filepath) {
     // Open file stream from disk
     std::ifstream inFile(filepath);
@@ -209,13 +168,8 @@ void Graph::loadFromFile(const std::string& filepath) {
     }
 }
 
-// ─── Node Look-ups ───────────────────────────────────────────────────────
 
 // Finds a node by ID and returns a read-only reference.
-// Input:  Node ID string.
-// Output: const Node& reference.
-// Errors: Throws std::invalid_argument if the ID does not exist in nodes_.
-// Time:   O(1) average hash map lookup.
 const Node& Graph::getNode(const std::string& id) const {
     auto it = nodes_.find(id);
     if (it == nodes_.end()) {
@@ -225,33 +179,23 @@ const Node& Graph::getNode(const std::string& id) const {
 }
 
 // Checks if a node ID exists in the network.
-// Input:  Node ID string.
-// Output: True if present, false otherwise.
-// Time:   O(1) average hash map lookup.
 bool Graph::hasNode(const std::string& id) const {
     return nodes_.find(id) != nodes_.end();
 }
 
 // Returns a read-only reference to the internal hash map of all nodes.
-// Output: const reference to std::unordered_map<std::string, Node>.
 const std::unordered_map<std::string, Node>& Graph::getNodes() const {
     return nodes_;
 }
 
 // Collects pointers to all nodes categorized as evacuation shelters.
-// Output: Vector of const Node pointers.
-// Time:   O(V) iterating through all nodes.
 std::vector<const Node*> Graph::getShelters() const {
     return getNodesByType(NodeType::Shelter);
 }
 
 // Collects pointers to all nodes matching a specific NodeType.
-// Input:  NodeType enum value.
-// Output: Vector of const Node pointers.
-// Time:   O(V).
 std::vector<const Node*> Graph::getNodesByType(NodeType type) const {
     std::vector<const Node*> list;
-    // C++ feature: structured binding [id, node] unpacks key and value directly
     for (const auto& [id, node] : nodes_) {
         if (node.type == type) {
             list.push_back(&node);
@@ -260,13 +204,8 @@ std::vector<const Node*> Graph::getNodesByType(NodeType type) const {
     return list;
 }
 
-// ─── Road Look-ups ───────────────────────────────────────────────────────
 
 // Finds a road by ID and returns a read-only reference.
-// Input:  Road ID string.
-// Output: const Road& reference.
-// Errors: Throws std::invalid_argument if the road ID does not exist.
-// Time:   O(1) average hash map lookup.
 const Road& Graph::getRoad(const std::string& id) const {
     auto it = roads_.find(id);
     if (it == roads_.end()) {
@@ -276,27 +215,18 @@ const Road& Graph::getRoad(const std::string& id) const {
 }
 
 // Checks if a road ID exists in the network.
-// Input:  Road ID string.
-// Output: True if present, false otherwise.
-// Time:   O(1) average.
 bool Graph::hasRoad(const std::string& id) const {
     return roads_.find(id) != roads_.end();
 }
 
 // Returns a read-only reference to the internal hash map of all roads.
-// Output: const reference to std::unordered_map<std::string, Road>.
 const std::unordered_map<std::string, Road>& Graph::getRoads() const {
     return roads_;
 }
 
-// ─── Adjacency Query ─────────────────────────────────────────────────────
 
 // Returns only the passable (non-blocked) edges incident to a given node.
 // Algorithms like Dijkstra call this so blocked roads are never traversed.
-// Input:  Node ID string.
-// Output: Vector of Edge structs for open roads.
-// Errors: Throws std::invalid_argument if the node does not exist.
-// Time:   O(deg(nodeId)) where deg is the number of incident roads.
 std::vector<Graph::Edge> Graph::getNeighbours(const std::string& nodeId) const {
     if (!hasNode(nodeId)) {
         throw std::invalid_argument("Node not found: " + nodeId);
@@ -318,12 +248,8 @@ std::vector<Graph::Edge> Graph::getNeighbours(const std::string& nodeId) const {
     return openEdges;
 }
 
-// ─── Road Status Modifiers ───────────────────────────────────────────────
 
 // Marks a road as blocked and records the reason for the closure.
-// Input:  Road ID string, optional hazard reason string.
-// Errors: Throws std::invalid_argument if the road does not exist.
-// Time:   O(1) average hash map lookup.
 void Graph::blockRoad(const std::string& roadId, const std::string& reason) {
     auto it = roads_.find(roadId);
     if (it == roads_.end()) {
@@ -334,9 +260,6 @@ void Graph::blockRoad(const std::string& roadId, const std::string& reason) {
 }
 
 // Reopens a blocked road and clears its reason string.
-// Input:  Road ID string.
-// Errors: Throws std::invalid_argument if the road does not exist.
-// Time:   O(1) average.
 void Graph::restoreRoad(const std::string& roadId) {
     auto it = roads_.find(roadId);
     if (it == roads_.end()) {
@@ -347,7 +270,6 @@ void Graph::restoreRoad(const std::string& roadId) {
 }
 
 // Reopens all roads across the entire graph and clears all blockage reasons.
-// Time:   O(E) where E is the total road count.
 void Graph::resetAllRoads() {
     for (auto& [id, road] : roads_) {
         road.blocked = false;
@@ -355,25 +277,8 @@ void Graph::resetAllRoads() {
     }
 }
 
-// ─── Seeded Scenario Generator ───────────────────────────────────────────
 
 // Simulates a disaster scenario by blocking a fraction of roads based on severity.
-//
-// How it works:
-//   1. Computes the target number of roads to block based on percentage:
-//      - "light":    ~8% of roads blocked.
-//      - "moderate": ~15% of roads blocked (default).
-//      - "severe":   ~25% of roads blocked.
-//   2. Gathers all road IDs in sorted order for deterministic shuffling.
-//   3. Uses std::mt19937 initialized with (seed + attempt * 17) to shuffle road IDs.
-//   4. Blocks the target number of roads and assigns hazard reasons from STANDARD_REASONS.
-//   5. For light and moderate scenarios, checks if every village can still reach at least
-//      one shelter. If any village is cut off, resets roads and retries with a new attempt.
-//   6. For severe scenarios, village cut-offs are explicitly allowed to simulate extreme floods.
-//
-// Input:  severity string ("light", "moderate", "severe"), integer seed for PRNG.
-// Output: ScenarioResult struct with blocked count, road pairs, and attempt count.
-// Time:   O(attempts * (E + V * (V + E))) where attempts is usually 1 to 5.
 ScenarioResult Graph::applyScenario(const std::string& severity, int seed) {
     resetAllRoads();
 
@@ -442,18 +347,8 @@ ScenarioResult Graph::applyScenario(const std::string& severity, int seed) {
     return res;
 }
 
-// ─── Connectivity Checks ─────────────────────────────────────────────────
 
-// Uses Breadth-First Search (BFS) to test if an open path exists between two nodes.
-//
-// How it works:
-//   BFS explores level by level using a FIFO queue. Since we only want to know
-//   if a path exists (reachability, not shortest weighted distance), unweighted BFS
-//   is faster than Dijkstra: O(V + E) instead of O((V + E) log V).
-//
-// Input:  from node ID, to node ID.
-// Output: True if an open corridor connects them, false otherwise.
-// Time:   O(V + E) where V is node count and E is open road count.
+// BFS checks whether any open path connects the two nodes.
 bool Graph::hasPath(const std::string& from, const std::string& to) const {
     if (!hasNode(from) || !hasNode(to)) return false;
     if (from == to) return true;
@@ -485,8 +380,6 @@ bool Graph::hasPath(const std::string& from, const std::string& to) const {
 
 // Verifies whether every village in the network has an open path to at least one shelter.
 // Used by applyScenario to reject random road blockage combinations that isolate a village.
-// Output: True if all villages have at least one reachable shelter; false otherwise.
-// Time:   O(V_villages * V_shelters * (V + E)).
 bool Graph::checkAllVillagesHaveShelter() const {
     auto villages = getNodesByType(NodeType::Village);
     auto shelters = getShelters();
@@ -512,20 +405,8 @@ bool Graph::checkAllVillagesHaveShelter() const {
     return true;
 }
 
-// ─── Nearest Services Grouping ───────────────────────────────────────────
 
 // Finds the closest relief facilities (hospitals, water points, etc.) from a source node.
-//
-// How it works:
-//   1. Runs single-source Dijkstra once from sourceId to find shortest distances to ALL nodes.
-//   2. Groups facilities by category (hospital, water, food, ngo, fire, police).
-//   3. Sorts each group: reachable facilities first by ascending distance, then unreachable ones.
-//   4. Truncates each category to the top 3 nearest facilities.
-//
-// Input:  sourceId node string.
-// Output: Map of facility category string to vector of ServiceEntry objects.
-// Errors: Throws std::invalid_argument if source node is unknown.
-// Time:   O((V + E) log V) dominated by the single Dijkstra run.
 std::unordered_map<std::string, std::vector<ServiceEntry>> Graph::getNearestServices(
     const std::string& sourceId) const {
 
@@ -560,7 +441,6 @@ std::unordered_map<std::string, std::vector<ServiceEntry>> Graph::getNearestServ
 
     // Step 3: Sort each facility group by reachability and distance
     for (auto& [typeKey, list] : grouped) {
-        // C++ feature: lambda function passed to std::sort as a custom comparator
         std::sort(list.begin(), list.end(), [](const ServiceEntry& a, const ServiceEntry& b) {
             if (a.reachable != b.reachable) {
                 return a.reachable > b.reachable;
@@ -577,18 +457,8 @@ std::unordered_map<std::string, std::vector<ServiceEntry>> Graph::getNearestServ
     return grouped;
 }
 
-// ─── Multi-Source Coverage View ──────────────────────────────────────────
 
 // Computes territory-wide shelter assignment for every village in a single search pass.
-//
-// How it works:
-//   1. Gathers all shelter IDs.
-//   2. Calls dijkstraMultiSource, which starts Dijkstra with ALL shelters at distance 0.
-//   3. Each village is automatically settled by whichever shelter reaches it first.
-//   4. Identifies which villages are covered and which are cut off by flood obstructions.
-//
-// Output: CoverageResult struct containing coverage stats and village breakdown.
-// Time:   O((V + E) log V) for the multi-source Dijkstra wave expansion.
 CoverageResult Graph::computeCoverage() const {
     auto shelterNodes = getShelters();
     std::vector<std::string> shelterIds;
@@ -642,23 +512,8 @@ CoverageResult Graph::computeCoverage() const {
     return result;
 }
 
-// ─── Route Disruption ────────────────────────────────────────────────────
 
-// Artificially blocks 1-2 open roads along an active evacuation route so the user
-// can immediately see a recalculated detour comparison in the browser interface.
-//
-// How it works:
-//   1. Computes the baseline shortest path between sourceId and destinationId.
-//   2. Gathers all physical road segments traversed by this baseline path.
-//   3. Shuffles the candidate roads using a deterministic random seed.
-//   4. Tests blocking candidates one by one:
-//      - If an alternative detour still exists to the destination, keeps the block.
-//      - If blocking that road would completely cut off the destination, reverts it.
-//   5. Returns the list of disrupted roads and explanatory message.
-//
-// Input:  sourceId, destinationId, integer seed.
-// Output: DisruptResult showing whether disruption occurred and which roads were closed.
-// Time:   O((V + E) log V) for checking alternative route feasibility.
+// Blocks roads on the active route to demonstrate a detour.
 DisruptResult Graph::disruptRoute(const std::string& sourceId,
                                   const std::string& destinationId,
                                   int seed) {
@@ -752,7 +607,6 @@ DisruptResult Graph::disruptRoute(const std::string& sourceId,
     return res;
 }
 
-// ─── Counts and Programmatic Building ────────────────────────────────────
 
 // Returns the total number of nodes stored in the network.
 size_t Graph::nodeCount() const {
@@ -765,19 +619,11 @@ size_t Graph::roadCount() const {
 }
 
 // Registers a Node struct in the nodes_ hash map.
-// Input:  const Node& node struct.
 void Graph::addNode(const Node& node) {
     nodes_[node.id] = node;
 }
 
 // Adds an undirected road and updates the adjacency lists of both endpoints.
-//
-// How it works:
-//   Because roads are undirected physical paths, an Edge is added to from's list
-//   pointing to to, and another Edge is added to to's list pointing to from.
-//
-// Input:  const Road& road struct.
-// Errors: Throws std::invalid_argument if either endpoint is missing or distance <= 0.
 void Graph::addRoad(const Road& road) {
     if (!hasNode(road.from)) {
         throw std::invalid_argument("Road endpoint node not found: " + road.from);
