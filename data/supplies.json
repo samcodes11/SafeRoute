@@ -19,7 +19,7 @@
       "name": "Medical kit",
       "weightKg": 8,
       "urgency": 100,
-      "description": "Emergency triage trauma dressings, antiseptic, ORS sachets, and anti-venom"
+      "description": "Emergency supplies trauma dressings, antiseptic, ORS sachets, and anti-venom"
     },
     {
       "id": "sup_baby",
@@ -47,7 +47,7 @@
       "name": "Blanket bundle",
       "weightKg": 6,
       "urgency": 50,
-      "description": "Thermal fleece emergency blankets and waterproof sleeping mats (5-pack)"
+      "description": "Thermal fleece emergency supplies blankets and waterproof sleeping mats (5-pack)"
     },
     {
       "id": "sup_tarp",

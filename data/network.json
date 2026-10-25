@@ -1,14 +1,14 @@
 {
   "nodes": [
-    {"id": "s1", "name": "Setubandh Shelter",        "type": "shelter",     "x": 120, "y":  95, "contact": "00000 01001", "note": "Emergency relief shelter (capacity: 450)"},
+    {"id": "s1", "name": "Setubandh Shelter",        "type": "shelter",     "x": 120, "y":  95, "contact": "00000 01001", "note": "Primary relief shelter (capacity: 450)"},
     {"id": "s2", "name": "Sethighat Shelter",         "type": "shelter",     "x": 500, "y": 330, "contact": "00000 01002", "note": "District flood evacuation center (capacity: 800)"},
     {"id": "s3", "name": "Tatbandh Shelter",           "type": "shelter",     "x": 800, "y": 500, "contact": "00000 01003", "note": "High-ground community hall shelter"},
     {"id": "s4", "name": "Koshi Adarsh Shelter",      "type": "shelter",     "x": 420, "y": 105, "contact": "00000 01004", "note": "Elevated government school shelter"},
 
-    {"id": "h1", "name": "Nadibasti Hospital",         "type": "hospital",    "x": 250, "y":  75, "contact": "00000 02001", "note": "24/7 emergency trauma care and ICU"},
+    {"id": "h1", "name": "Nadibasti Hospital",         "type": "hospital",    "x": 250, "y":  75, "contact": "00000 02001", "note": "24/7 critical trauma care and ICU"},
     {"id": "h2", "name": "Chaparghat Hospital",        "type": "hospital",    "x": 780, "y": 170, "contact": "00000 02002", "note": "Sub-divisional hospital with power backup"},
     {"id": "h3", "name": "Devghat Hospital",           "type": "hospital",    "x": 700, "y": 430, "contact": "00000 02003", "note": "Primary health centre with ambulance dock"},
-    {"id": "h4", "name": "Dakshin Medical Post",       "type": "hospital",    "x": 370, "y": 560, "contact": "00000 02004", "note": "Emergency triage & maternal care clinic"},
+    {"id": "h4", "name": "Dakshin Medical Post",       "type": "hospital",    "x": 370, "y": 560, "contact": "00000 02004", "note": "Trauma triage & maternal care clinic"},
 
     {"id": "j1", "name": "Pulchowk Junction",          "type": "junction",    "x": 350, "y": 110, "contact": "00000 03001", "note": "Northern riverway transit interchange"},
     {"id": "j2", "name": "Jalpath Junction",           "type": "junction",    "x": 200, "y": 300, "contact": "00000 03002", "note": "West bank ring road crossroads"},
@@ -22,14 +22,14 @@
 
     {"id": "food1", "name": "Ananda Community Kitchen", "type": "food",       "x": 290, "y": 145, "contact": "00000 05001", "note": "Hot meals & packed lunch distribution"},
     {"id": "food2", "name": "Central Grain Depot",      "type": "food",       "x": 485, "y": 250, "contact": "00000 05002", "note": "Government food grain storage center"},
-    {"id": "food3", "name": "Purva Ration Point",       "type": "food",       "x": 860, "y": 360, "contact": "00000 05003", "note": "Emergency ration and water packets"},
+    {"id": "food3", "name": "Purva Ration Point",       "type": "food",       "x": 860, "y": 360, "contact": "00000 05003", "note": "Dry ration and water packets"},
 
     {"id": "water1", "name": "Panchayat RO Water Point","type": "water",      "x": 115, "y": 185, "contact": "00000 06001", "note": "Filtered safe drinking water dispensing"},
     {"id": "water2", "name": "Jal Jeevan Tanker Station","type": "water",     "x": 450, "y": 410, "contact": "00000 06002", "note": "Clean potable water tanker filling station"},
     {"id": "water3", "name": "East Purva Borewell Unit","type": "water",     "x": 880, "y": 210, "contact": "00000 06003", "note": "Deep solar borewell water supply point"},
 
     {"id": "fire1", "name": "Riverbank Fire & Rescue",  "type": "fire_station","x": 225, "y": 135, "contact": "00000 07001", "note": "Inflatable rescue boats & lifebuoys on standby"},
-    {"id": "fire2", "name": "Sangam Emergency Rescue",  "type": "fire_station","x": 660, "y": 350, "contact": "00000 07002", "note": "High-clearance rescue vehicles station"},
+    {"id": "fire2", "name": "Sangam Disaster Rescue",  "type": "fire_station","x": 660, "y": 350, "contact": "00000 07002", "note": "High-clearance rescue vehicles station"},
 
     {"id": "police1", "name": "Nadibasti Police Thana", "type": "police",     "x": 370, "y":  60, "contact": "00000 08001", "note": "Flood zone security & traffic control"},
     {"id": "police2", "name": "Sangam Highway Outpost", "type": "police",     "x": 555, "y": 420, "contact": "00000 08002", "note": "Highway evacuation escort checkpoint"},

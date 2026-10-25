@@ -23,7 +23,7 @@
 //
 // How it works:
 //   1. Mounts the local webRoot folder (typically "web") to serve HTML, CSS, JS,
-//      emergency directories, and local font files directly to browsers.
+//      and local font files directly to browsers.
 //   2. Registers REST endpoints (/api/network, /api/compare, /api/load-plan, etc.).
 //   3. Runs a blocking event loop on 0.0.0.0 listening for incoming HTTP connections.
 //

@@ -4,7 +4,7 @@
 
 > [!NOTE]
 > **Academic Context & Disclaimer**:
-> This project is a college mini project for the **Design and Analysis of Algorithms** course (**PBL-III**). All road distances, facility names, village boundaries, and facility contact numbers in the road network are fictional and designed for algorithmic simulation. Emergency helpline numbers (112, 1070, NDRF, etc.) are national numbers and must be verified locally before real-world reliance.
+> This project is a college mini project for the **Design and Analysis of Algorithms** course (**PBL-III**). All road distances, facility names, village boundaries, and facility contact numbers in the road network are fictional and designed for algorithmic simulation.
 
 ---
 
@@ -15,17 +15,16 @@ During sudden natural calamities (river-belt monsoonal flooding, flash inundatio
 Standard navigation tools fail during active calamities because they rely on delayed crowd-sourced traffic and assume all roads are passable. **SafeRoute** models a flood-prone river-basin network as an undirected, weighted graph coupled with an integer humanitarian knapsack engine:
 - **Nodes (44 Facilities)**: 18 villages, 8 transit junctions, 3 hospitals/trauma posts, 4 high-capacity evacuation shelters, 3 NGO relief camps, 3 food distribution centres, 3 drinking water points, 1 fire & water rescue station, and 1 police outpost.
 - **Edges (90 Roads)**: Physical road segments with metric distances (in kilometers), each capable of tracking disaster status and specific blockage reasons (e.g., *"Flooded road"*, *"Bridge damaged"*, *"Power lines down"*).
-- **Relief Supply Catalogue & Village Needs**: 10 essential disaster relief commodities (drinking water crates, food packet boxes, emergency trauma kits, baby food & milk packs, life jackets, hygiene packs, woollen blanket bundles, heavy tarpaulin sheets, torches & batteries, portable stoves). Each village has surveyed emergency demand that exceeds standard vehicle payload limits.
+- **Relief Supply Catalogue & Village Needs**: 10 essential disaster relief commodities (drinking water crates, food packet boxes, emergency supplies trauma kits, baby food & milk packs, life jackets, hygiene packs, woollen blanket bundles, heavy tarpaulin sheets, torches & batteries, portable stoves). Each village has surveyed relief demand that exceeds standard vehicle payload limits.
 
-SafeRoute provides emergency responders, district magistrates, and relief coordinators with:
+SafeRoute provides first responders, district magistrates, and relief coordinators with:
 1. **Dynamic Detour Calculation**: Instantly computes optimal alternative routes on open roads when primary corridors fail.
-2. **Relief Truck Payload Optimizer (0/1 Knapsack DP)**: Maximizes humanitarian urgency delivered to affected communities under truck weight limits, compared side-by-side with a greedy ratio heuristic.
+2. **Relief Truck Payload Optimizer (0/1 Knapsack DP)**: Maximizes humanitarian urgency delivered to affected communities under truck weight limits.
 3. **Deterministic Disaster Scenarios**: Reproducible simulation of calamity severity (Light ~8%, Moderate ~15%, Severe ~25%) with seeded PRNG.
 4. **Multi-Source Shelter Coverage**: Identifies which relief shelter serves each village and flags cut-off communities that require boat or airlift rescue.
 5. **Nearest Relief Services**: Groups closest medical facilities, potable water stations, food depots, and rescue stations with demo contacts.
 6. **Algorithmic Step-by-Step Stepper**: Traces Dijkstra min-heap execution states step-by-step for academic review and operational auditing.
 7. **Printable Evacuation & Manifest Orders**: Print-formatted report generator (`window.print()`) for offline field dispatch.
-8. **Emergency Directory**: National emergency numbers (112, 100, 101, 102, 108, NDMA, NDRF) and flood survival protocols.
 
 ---
 
@@ -51,11 +50,11 @@ SafeRoute/
 ├── data/
 │   ├── network.json          # 44 nodes, 90 roads disaster river-basin network
 │   ├── supplies.json         # 10 emergency supply items with weights and urgency
-│   └── village_needs.json    # Fixed-seed emergency requirements for all 18 villages
+│   └── village_needs.json    # Fixed-seed relief requirements for all 18 villages
 ├── include/
 │   ├── graph.h               # Adjacency list, facility nodes, and disaster operations
 │   ├── dijkstra.h            # Dijkstra, multi-source coverage & trace recorder
-│   ├── knapsack.h            # 0/1 Knapsack DP, Greedy heuristic & Brute-force solver
+│   ├── knapsack.h            # 0/1 Knapsack DP & Brute-force solver
 │   └── server.h              # Embedded HTTP server interface
 ├── LICENSE                   # MIT License
 ├── THIRD_PARTY_NOTICES.md    # Open source notices & licenses
@@ -63,24 +62,22 @@ SafeRoute/
 │   └── screenshots/          # Application walkthrough visual captures
 │       ├── planner-route.png
 │       ├── relief-loading.png
-│       ├── knapsack-demo.png
-│       └── emergency-numbers.png
+│       └── knapsack-demo.png
 ├── src/
 │   ├── graph.cpp             # JSON loader, scenario generator, coverage & services
 │   ├── dijkstra.cpp          # Single-pair, multi-source Dijkstra and step-by-step trace
-│   ├── knapsack.cpp          # Knapsack DP matrix, backtracking path, & greedy ratio
+│   ├── knapsack.cpp          # Knapsack DP matrix & backtracking path
 │   ├── server.cpp            # REST API endpoints & static asset router
 │   └── main.cpp              # Dual-mode entry point (Web Server & CLI)
 ├── tests/
-│   └── test_main.cpp         # 24 automated assert-based unit and integration tests
+│   └── test_main.cpp         # 23 automated assert-based unit and integration tests
 ├── third_party/
 │   ├── httplib.h             # Single-header embedded HTTP server (MIT)
 │   └── json.hpp              # Single-header JSON library (MIT)
 └── web/
-    ├── index.html            # Semantic HTML layout with SVG map viewport & 3 tabs
+    ├── index.html            # Semantic HTML layout with SVG map viewport & 2 tabs
     ├── style.css             # Warm beige formal design system & print stylesheet
     ├── app.js                # SVG map renderer, knapsack controller, & API client
-    ├── emergency.json        # Verified national emergency numbers & flood safety tips
     └── fonts/                # Local woff2 fonts (Fraunces & DM Sans)
         ├── fraunces-600.woff2
         ├── fraunces-700.woff2
@@ -166,8 +163,7 @@ g++ -std=c++17 -Wall -Wextra \
 | Road restoration | Unblocking a road restores optimal route | **PASS** |
 | Full network data loading | Ingests 44 nodes, 90 roads, contacts, and operational notes | **PASS** |
 | Knapsack DP vs Brute-force | DP equals brute-force exact optimal across 50 random test instances | **PASS** |
-| Knapsack 160 vs 220 demo | Exact verification: Greedy chooses 160 pts, DP chooses 220 pts (+60 gain) | **PASS** |
-| Knapsack DP $\ge$ Greedy | DP total urgency never less than Greedy heuristic across 100 random runs | **PASS** |
+| Knapsack demo verification | DP optimal choice achieves 220 urgency, 50 kg, 4x51 DP matrix | **PASS** |
 | Knapsack capacity 0 | Zero capacity returns 0 items, 0 weight, 0 urgency cleanly | **PASS** |
 | Items heavier than capacity | Overweight items are never chosen by solver | **PASS** |
 | All items fit | When total weight $\le$ capacity, all candidate items are selected | **PASS** |
@@ -183,14 +179,11 @@ g++ -std=c++17 -Wall -Wextra \
 ### 1. Evacuation Route Planner (Detour Around Disaster Obstructions)
 ![Evacuation Route Planner](docs/screenshots/planner-route.png)
 
-### 2. Relief Truck Loading Optimizer (0/1 Knapsack DP vs Greedy Heuristic)
+### 2. Relief Truck Loading Optimizer (0/1 Knapsack DP)
 ![Relief Truck Loading Optimizer](docs/screenshots/relief-loading.png)
 
-### 3. Knapsack Educational Counterexample & 2D DP Matrix Visualizer
-![Knapsack Counterexample & DP Matrix](docs/screenshots/knapsack-demo.png)
-
-### 4. Verified National Emergency Directory & Flood Safety Guidance
-![Emergency Directory & Safety Guidance](docs/screenshots/emergency-numbers.png)
+### 3. Knapsack Worked Example & 2D DP Matrix Visualizer
+![Knapsack Worked Example & DP Matrix](docs/screenshots/knapsack-demo.png)
 
 ---
 
@@ -221,20 +214,17 @@ g++ -std=c++17 -Wall -Wextra \
 2. **Plan Loading**:
    - Click **Plan Loading**.
    - SafeRoute runs Dijkstra on the open road network to compute delivery corridor distance and waypoints.
-   - Side-by-side comparison cards display **Optimal Load (DP)** vs. **Quick Heuristic (Greedy)**, weight usage bars, item manifest breakdown, and the central **Urgency Gain Callout** (e.g. `+35 Urgency gained by DP over greedy heuristic`).
+   - Displays **Optimal Load (0/1 DP)**, payload usage bar, and item manifest breakdown.
 3. **Show Route on Map**:
    - Click **Show Route on Map** to immediately switch to the map and visualize the ground corridor from depot to village.
-4. **Educational Counterexample (Where Greedy Fails)**:
-   - Click **Show Demo Where Greedy Fails**.
-   - Displays the classic 50 kg counterexample:
-     - Medical kit: 10 kg, Urgency 60 (Ratio 6.0 pt/kg)
-     - Blanket bundle: 20 kg, Urgency 100 (Ratio 5.0 pt/kg)
-     - Water crate: 30 kg, Urgency 120 (Ratio 4.0 pt/kg)
-   - Demonstrates that Greedy selects Medical kit + Blankets (30 kg, Urgency 160, wasting 20 kg), while DP selects Blankets + Water (50 kg, Urgency 220, achieving +60 urgency gain).
+4. **Educational Worked Example**:
+   - Click **Show DP Table Demo**.
+   - Displays a 50 kg worked example:
+     - Medical kit: 10 kg, Urgency 60
+     - Blanket bundle: 20 kg, Urgency 100
+     - Water crate: 30 kg, Urgency 120
+   - Demonstrates that DP selects Blanket bundle + Water crate (50 kg, Urgency 220).
    - Highlights the exact backtracking path through the rendered 2D Dynamic Programming matrix $M[i, w]$.
-
-### Tab 3: Emergency Numbers & Directory
-- View verified Indian national emergency helplines (112, 100, 101, 102, 108, 1070, 1078, NDRF) with tap-to-call links and flood safety tips.
 
 ### Printable Operations Order
 - Click **Print Plan** in the top header to preview/print the combined evacuation detour analysis and active relief loading manifest.
@@ -257,12 +247,12 @@ Calculates and compares original baseline route vs. disaster-adjusted revised ro
 Returns the 10-item disaster supply catalogue and surveyed village needs.
 
 ### `POST /api/load-plan`
-Calculates Dijkstra trip route and compares 0/1 Knapsack DP vs. Greedy ratio heuristic.
+Calculates Dijkstra trip route and solves 0/1 Knapsack DP.
 - **Request**: `{"depotId": "ngo1", "villageId": "v1", "capacityKg": 200}`
-- **Response**: `reachable`, `routeDistanceKm`, `routePath`, `dp` result, `greedy` result, and `urgencyGain`. If unreachable, returns `reachable: false` and error explanation.
+- **Response**: `reachable`, `routeDistanceKm`, `routePath`, and `dp` result. If unreachable, returns `reachable: false` and error explanation.
 
 ### `GET /api/load-demo`
-Returns the canonical 50 kg counterexample where greedy ratio fails, complete with the full $4 \times 51$ DP table and backtracking path coordinate cells.
+Returns a 50 kg DP worked example, complete with the full $4 \times 51$ DP table and backtracking path coordinate cells.
 
 ### `POST /api/shelters`
 Ranks all evacuation shelters from a source location.
@@ -324,8 +314,6 @@ Starting at cell $(n, W)$:
 #### Complexity Analysis:
 - **Time Complexity**: $\Theta(n \cdot W)$ — The table of size $(n + 1) \times (W + 1)$ has each entry computed in $\mathcal{O}(1)$ time. This is **pseudo-polynomial** time (polynomial in the numeric value of $W$, but exponential in the number of bits $\log W$ required to represent $W$).
 - **Space Complexity**: $\Theta(n \cdot W)$ — To enable exact reconstruction of the selected manifest and UI matrix inspection.
-- **Greedy Comparison Heuristic**: Sort items in descending order of efficiency ratio $r_i = u_i / w_i$ in $\mathcal{O}(n \log n)$ time, then take items while capacity permits.
-- **Why Greedy Fails**: Greedy is optimal for the *fractional* knapsack problem (where items can be cut), but fails for the *0/1 integer* knapsack problem because leaving capacity unfilled cannot be recovered by dividing the next best item.
 
 ---
 
@@ -345,7 +333,6 @@ Dijkstra's algorithm solves Single-Source Shortest Path (SSSP) on graphs with no
 | Algorithm | Problem Solved | Time Complexity | Space Complexity | Optimality Guarantee |
 |---|---|---|---|---|
 | **0/1 Knapsack DP (SafeRoute)** | Truck Payload Optimization | $\Theta(n \cdot W)$ | $\Theta(n \cdot W)$ | **Guaranteed Global Optimum** |
-| **Knapsack Greedy Heuristic** | Truck Payload Heuristic | $\mathcal{O}(n \log n)$ | $\mathcal{O}(n)$ | Suboptimal heuristic (ratio trap) |
 | **Knapsack Brute Force** | Exact Verification Benchmark | $\mathcal{O}(2^n)$ | $\mathcal{O}(n)$ | Guaranteed Global Optimum (intractable for $n > 25$) |
 | **Dijkstra (SafeRoute Engine)** | Shortest Safe Evacuation Route | $\mathcal{O}((V + E) \log V)$ | $\mathcal{O}(V + E)$ | **Guaranteed Minimum Distance** |
 | **Multi-Source Dijkstra** | Territory Shelter Catchment | $\mathcal{O}((V + E) \log V)$ | $\mathcal{O}(V + E)$ | **Guaranteed Catchment Assignment** |
@@ -357,7 +344,7 @@ Dijkstra's algorithm solves Single-Source Shortest Path (SSSP) on graphs with no
 ### Limitations
 1. **Single-Truck Optimization**: The knapsack solver currently optimizes one truck payload dispatch per run. Future extensions could model multi-vehicle fleets with varied capacities (Bin Packing Problem / Multiple Knapsack).
 2. **Static Demand**: Village requirements are loaded from surveyed relief needs and do not fluctuate over time during a single dispatch cycle.
-3. **Illustrative River-Belt Dataset**: Node coordinates, village names, and phone numbers (`00000 01234`) are synthetic models designed for academic coursework demonstration. Real emergency helplines are provided on the Emergency Numbers tab.
+3. **Illustrative River-Belt Dataset**: Node coordinates, village names, and phone numbers (`00000 01234`) are synthetic models designed for academic coursework demonstration.
 
 ---
 

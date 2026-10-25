@@ -9,7 +9,6 @@
  * - Multi-source shelter coverage view
  * - Nearest relief services grouping with demo contact links and direct routing
  * - Step-by-step Dijkstra min-heap execution stepper visualizer
- * - Emergency Numbers directory rendered from web/emergency.json
  * - Printable evacuation plan (window.print() support)
  */
 
@@ -146,10 +145,8 @@ function cacheDomElements() {
   // Navigation Tabs & Panes
   dom.tabBtnPlanner = document.getElementById("tab-btn-planner");
   dom.tabBtnLoading = document.getElementById("tab-btn-loading");
-  dom.tabBtnEmergency = document.getElementById("tab-btn-emergency");
   dom.panePlanner = document.getElementById("pane-planner");
   dom.paneLoading = document.getElementById("pane-loading");
-  dom.paneEmergency = document.getElementById("pane-emergency");
 
   // Relief Loading (Knapsack)
   dom.selectLoadDepot = document.getElementById("select-load-depot");
@@ -172,7 +169,6 @@ function cacheDomElements() {
   dom.loadingUnreachableBanner = document.getElementById("loading-unreachable-banner");
   dom.loadingUnreachableText = document.getElementById("loading-unreachable-text");
   dom.loadingResultsContainer = document.getElementById("loading-results-container");
-  dom.urgencyDeltaBanner = document.getElementById("urgency-delta-banner");
 
   dom.dpTotalUrgency = document.getElementById("dp-total-urgency");
   dom.dpWeightRatio = document.getElementById("dp-weight-ratio");
@@ -180,13 +176,6 @@ function cacheDomElements() {
   dom.dpWeightPct = document.getElementById("dp-weight-pct");
   dom.dpItemCount = document.getElementById("dp-item-count");
   dom.dpManifestTable = document.getElementById("dp-manifest-table");
-
-  dom.greedyTotalUrgency = document.getElementById("greedy-total-urgency");
-  dom.greedyWeightRatio = document.getElementById("greedy-weight-ratio");
-  dom.greedyWeightBar = document.getElementById("greedy-weight-bar");
-  dom.greedyWeightPct = document.getElementById("greedy-weight-pct");
-  dom.greedyItemCount = document.getElementById("greedy-item-count");
-  dom.greedyManifestTable = document.getElementById("greedy-manifest-table");
 
   dom.cardDemoContainer = document.getElementById("card-demo-container");
   dom.demoDpTableContainer = document.getElementById("demo-dp-table-container");
@@ -209,22 +198,17 @@ function setupNavigationTabs() {
   const switchTab = (tabName) => {
     dom.tabBtnPlanner.classList.toggle("active", tabName === "planner");
     dom.tabBtnLoading.classList.toggle("active", tabName === "loading");
-    dom.tabBtnEmergency.classList.toggle("active", tabName === "emergency");
 
     dom.panePlanner.classList.toggle("active", tabName === "planner");
     dom.paneLoading.classList.toggle("active", tabName === "loading");
-    dom.paneEmergency.classList.toggle("active", tabName === "emergency");
 
     if (tabName === "loading") {
       loadSuppliesData();
-    } else if (tabName === "emergency") {
-      loadEmergencyData();
     }
   };
 
   dom.tabBtnPlanner.addEventListener("click", () => switchTab("planner"));
   dom.tabBtnLoading.addEventListener("click", () => switchTab("loading"));
-  dom.tabBtnEmergency.addEventListener("click", () => switchTab("emergency"));
 }
 
 // ─── Zoom & Pan on SVG Map ───────────────────────────────────────
@@ -1295,65 +1279,6 @@ async function fetchAndRenderCoverage() {
   }
 }
 
-// ─── Emergency Directory & Safety Tips ───────────────────────────
-async function loadEmergencyData() {
-  try {
-    const res = await fetch("emergency.json");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    const grid = document.getElementById("emergency-categories-grid");
-    grid.innerHTML = "";
-
-    data.categories.forEach(cat => {
-      const groupEl = document.createElement("div");
-      groupEl.className = "emergency-card-group";
-
-      const h3 = document.createElement("h3");
-      h3.style.fontSize = "18px";
-      h3.style.marginBottom = "4px";
-      h3.textContent = cat.title;
-      groupEl.appendChild(h3);
-
-      cat.numbers.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "emergency-item";
-        div.innerHTML = `
-          <div class="emergency-item-left">
-            <h3>${item.service}</h3>
-            <p>${item.description}</p>
-          </div>
-          <a href="tel:${item.tel}" class="emergency-dial-btn" title="Tap to call ${item.number}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-            ${item.number}
-          </a>
-        `;
-        groupEl.appendChild(div);
-      });
-
-      grid.appendChild(groupEl);
-    });
-
-    // Flood Tips
-    const tipsGrid = document.getElementById("flood-tips-grid");
-    tipsGrid.innerHTML = "";
-    data.flood_safety_tips.forEach((tip, idx) => {
-      const box = document.createElement("div");
-      box.className = "tip-box";
-      box.innerHTML = `
-        <h4><span style="color:#C2542D;">#${idx + 1}</span> ${tip.title}</h4>
-        <p>${tip.text}</p>
-      `;
-      tipsGrid.appendChild(box);
-    });
-
-  } catch (err) {
-    showToast("Could not load emergency directory: " + err.message);
-  }
-}
-
 // ─── Step-by-Step Dijkstra Stepper Visualizer ─────────────────────
 async function openStepperModal() {
   const source = dom.selectSource.value;
@@ -1587,8 +1512,6 @@ function handleVillageNeedUpdate() {
 //   The backend engine computes:
 //     1. Ground delivery corridor distance and waypoints via Dijkstra on open roads.
 //     2. Optimal cargo manifest using 0/1 Dynamic Programming.
-//     3. Fast heuristic manifest using Greedy urgency-to-weight ratio.
-//     4. Urgency points gained by DP over Greedy for the selected payload limit.
 async function calculateLoadPlan() {
   const depotId = dom.selectLoadDepot.value;
   const villageId = dom.selectLoadVillage.value;
@@ -1660,29 +1583,6 @@ async function calculateLoadPlan() {
       }
     });
 
-    // Urgency Delta Callout Banner
-    if (data.urgencyGain > 0) {
-      dom.urgencyDeltaBanner.className = "delta-callout-banner";
-      dom.urgencyDeltaBanner.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span class="delta-pill">+${data.urgencyGain} Urgency</span>
-          <span style="font-size:14px; color:#2F7D4F;">
-            <strong>Dynamic Programming Gain:</strong> Optimal 0/1 knapsack yields <strong>+${data.urgencyGain}</strong> more urgency points than the greedy ratio heuristic for this ${data.capacityKg} kg payload limit.
-          </span>
-        </div>
-      `;
-    } else {
-      dom.urgencyDeltaBanner.className = "delta-callout-banner tie";
-      dom.urgencyDeltaBanner.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span class="delta-pill" style="background:#5C4C3E;">Equal</span>
-          <span style="font-size:14px; color:#5C4C3E;">
-            <strong>Optimal Tie:</strong> Both Dynamic Programming and Greedy ratio heuristic achieved identical urgency (${data.dp.totalUrgency} points) on this allocation.
-          </span>
-        </div>
-      `;
-    }
-
     // DP Card
     const dpPct = Math.min(100, Math.round((data.dp.totalWeightKg / data.capacityKg) * 100));
     dom.dpTotalUrgency.textContent = data.dp.totalUrgency;
@@ -1690,14 +1590,6 @@ async function calculateLoadPlan() {
     dom.dpWeightBar.style.width = `${dpPct}%`;
     dom.dpWeightPct.textContent = `${dpPct}% payload capacity utilized (${data.capacityKg - data.dp.totalWeightKg} kg spare)`;
     renderManifestTable(dom.dpManifestTable.querySelector("tbody"), data.dp, dom.dpItemCount);
-
-    // Greedy Card
-    const grPct = Math.min(100, Math.round((data.greedy.totalWeightKg / data.capacityKg) * 100));
-    dom.greedyTotalUrgency.textContent = data.greedy.totalUrgency;
-    dom.greedyWeightRatio.textContent = `${data.greedy.totalWeightKg} / ${data.capacityKg} kg`;
-    dom.greedyWeightBar.style.width = `${grPct}%`;
-    dom.greedyWeightPct.textContent = `${grPct}% payload capacity utilized (${data.capacityKg - data.greedy.totalWeightKg} kg spare)`;
-    renderManifestTable(dom.greedyManifestTable.querySelector("tbody"), data.greedy, dom.greedyItemCount);
 
   } catch (err) {
     showToast("Load planning query failed: " + err.message);
@@ -1708,10 +1600,8 @@ async function calculateLoadPlan() {
 function updateCapacityDisplays(cap) {
   if (state.currentLoadPlan && state.currentLoadPlan.dp) {
     dom.dpWeightRatio.textContent = `${state.currentLoadPlan.dp.totalWeightKg} / ${cap} kg`;
-    dom.greedyWeightRatio.textContent = `${state.currentLoadPlan.greedy.totalWeightKg} / ${cap} kg`;
   } else {
     dom.dpWeightRatio.textContent = `0 / ${cap} kg`;
-    dom.greedyWeightRatio.textContent = `0 / ${cap} kg`;
   }
 }
 
@@ -1829,10 +1719,10 @@ function showTripOnMap() {
 
 // ─── Educational Knapsack Demo Visualizer ────────────────────────
 // API Interaction:
-//   Calls GET /api/load-demo to fetch the fixed 50 kg counterexample where greedy ratio fails.
+//   Calls GET /api/load-demo to fetch the fixed 50 kg DP worked example.
 //   Dynamically renders the full (4 x 51) 2D DP matrix table and highlights the exact
 //   backtracking cells (i, w) that the algorithm traversed to select the optimal cargo.
-//   Also fills both result cards and manifest tables demonstrating greedy vs DP.
+//   Also fills the DP result card and manifest table.
 async function showKnapsackDemo() {
   try {
     const res = await fetch("/api/load-demo");
@@ -1848,21 +1738,10 @@ async function showKnapsackDemo() {
     dom.loadingRouteStatus.innerHTML = '<span style="color:#2F7D4F; font-weight:700;">Demo Scenario: 50 kg Payload Limit</span>';
     dom.loadingTripMetrics.innerHTML = `
       <div style="font-size: 13px; color: #5C4C3E;">
-        Curated Pedagogical Case: <strong>Where Greedy Ratio Heuristic Fails</strong>
+        Worked Example: <strong>0/1 Knapsack Dynamic Programming</strong>
       </div>
     `;
     dom.loadingTripWaypoints.innerHTML = '<span class="waypoint-badge">Relief Depot</span><span style="color:#9C8B78;"> \u2192 </span><span class="waypoint-badge">Target Village</span>';
-
-    // Urgency Delta Callout Banner: +60 Urgency Points
-    dom.urgencyDeltaBanner.className = "delta-callout-banner";
-    dom.urgencyDeltaBanner.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px;">
-        <span class="delta-pill">+${data.urgencyGain} Urgency</span>
-        <span style="font-size:14px; color:#2F7D4F;">
-          <strong>Dynamic Programming Gain:</strong> Optimal 0/1 knapsack yields <strong>+${data.urgencyGain}</strong> more urgency points than greedy ratio heuristic (220 vs 160) for 50 kg payload limit.
-        </span>
-      </div>
-    `;
 
     // DP Card (Blankets + Water = 50 kg, 220 Urgency)
     const dpPct = Math.min(100, Math.round((data.dp.totalWeightKg / data.capacityKg) * 100));
@@ -1871,14 +1750,6 @@ async function showKnapsackDemo() {
     dom.dpWeightBar.style.width = `${dpPct}%`;
     dom.dpWeightPct.textContent = `${dpPct}% payload capacity utilized (${data.capacityKg - data.dp.totalWeightKg} kg spare)`;
     renderManifestTable(dom.dpManifestTable.querySelector("tbody"), data.dp, dom.dpItemCount);
-
-    // Greedy Card (Medical kit + Blankets = 30 kg, 160 Urgency)
-    const grPct = Math.min(100, Math.round((data.greedy.totalWeightKg / data.capacityKg) * 100));
-    dom.greedyTotalUrgency.textContent = data.greedy.totalUrgency;
-    dom.greedyWeightRatio.textContent = `${data.greedy.totalWeightKg} / ${data.capacityKg} kg`;
-    dom.greedyWeightBar.style.width = `${grPct}%`;
-    dom.greedyWeightPct.textContent = `${grPct}% payload capacity utilized (${data.capacityKg - data.greedy.totalWeightKg} kg spare)`;
-    renderManifestTable(dom.greedyManifestTable.querySelector("tbody"), data.greedy, dom.greedyItemCount);
 
     // 2. Render Full 2D Dynamic Programming Matrix Table
     const container = dom.demoDpTableContainer;
@@ -1941,7 +1812,7 @@ async function showKnapsackDemo() {
     dom.cardDemoContainer.scrollIntoView({ behavior: "smooth" });
 
   } catch (err) {
-    showToast("Failed to load knapsack counterexample demo: " + err.message);
+    showToast("Failed to load knapsack demo: " + err.message);
   }
 }
 
@@ -1963,7 +1834,7 @@ function renderPrintReliefSection() {
       Dispatch Depot: <strong>${depotName}</strong> &bull; Target Village: <strong>${villageName}</strong> &bull; Truck Limit: <strong>${p.capacityKg} kg</strong> &bull; Trip Distance: <strong>${p.routeDistanceKm.toFixed(1)} km</strong>
     </p>
     <div style="font-size:13px; margin-bottom:8px;">
-      <strong>Optimal Load Summary:</strong> Urgency: <strong>${p.dp.totalUrgency} pts</strong> (${p.urgencyGain > 0 ? `+${p.urgencyGain} pts over Greedy` : 'Matches Greedy'}) &bull; Total Payload: <strong>${p.dp.totalWeightKg} / ${p.capacityKg} kg</strong>
+      <strong>Optimal Load Summary:</strong> Urgency: <strong>${p.dp.totalUrgency} pts</strong> &bull; Total Payload: <strong>${p.dp.totalWeightKg} / ${p.capacityKg} kg</strong>
     </div>
     <div style="font-size:13px; margin-bottom:6px;"><strong>Delivery Corridor Waypoints:</strong> ${p.routePath.map(nid => state.nodes.get(nid)?.name || nid).join(" \u2192 ")}</div>
   `;

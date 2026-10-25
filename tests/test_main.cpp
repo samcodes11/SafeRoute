@@ -4,13 +4,13 @@
 //   Contains the standalone automated test suite for the SafeRoute system.
 //   It verifies graph loading, Dijkstra routing, detour recalculation, cut-off isolation,
 //   hazard reason tracking, PRNG scenario reproducibility, multi-source coverage equivalence,
-//   trace visualizer fidelity, exception handling, and all 9 Knapsack relief loading guarantees.
+//   trace visualizer fidelity, exception handling, and 0/1 Knapsack relief loading guarantees.
 //
 // What is inside:
 //   - Test counting and reporting harness (runTest, approxEqual).
 //   - Hand-crafted 7-node, 8-road test graph (buildSmallTestGraph) for isolated unit tests.
 //   - Tests 1-14: Graph routing, scenarios, nearest services, coverage, and error handling.
-//   - Tests 15-23: 0/1 Knapsack DP, Greedy approximation, brute-force benchmark, and limits.
+//   - Tests 15-23: 0/1 Knapsack DP, brute-force benchmark, and limits.
 //   - main: runs all 23 tests sequentially and returns exit code 0 on complete pass.
 //
 // Other files that use this file:
@@ -208,7 +208,7 @@ static bool testLightAndModerateShelterConnectivity() {
     return true;
 }
 
-// Test 8: Checks nearest emergency services grouping and distance sorting.
+// Test 8: Checks nearest relief services grouping and distance sorting.
 // Why it matters: Proves closest hospital (h1: 2km), water (w1: 5km), and shelter (s1: 7km) match.
 static bool testNearestServiceCorrectness() {
     Graph g = buildSmallTestGraph();
@@ -402,22 +402,17 @@ static bool testKnapsackDPEqualsBruteForce() {
     return true;
 }
 
-// Test 16: Verifies the canonical 160 vs 220 counterexample where greedy ratio fails.
-// Why it matters: Proves to viva examiners why DP (+60 urgency gain) is required over greedy.
-static bool testKnapsackDemo160vs220() {
+// Test 16: Verifies the 50 kg DP worked example (DP = 220 urgency, 50 kg, table 4x51).
+// Why it matters: Confirms DP optimal choice and full table dimensions for pedagogical demonstration.
+static bool testKnapsackDemoDP() {
     int cap = 50;
     std::vector<SupplyItem> items = {
-        {"Medical kit", 10, 60},      // ratio 6.0 pt/kg
-        {"Blanket bundle", 20, 100},  // ratio 5.0 pt/kg
-        {"Water crate", 30, 120}      // ratio 4.0 pt/kg
+        {"Medical kit", 10, 60},
+        {"Blanket bundle", 20, 100},
+        {"Water crate", 30, 120}
     };
 
-    KnapsackResult greedyRes = solveKnapsackGreedy(items, cap);
     KnapsackResult dpRes = solveKnapsackDP(items, cap, true);
-
-    // Greedy by ratio must pick Medical kit + Blankets: urgency = 60 + 100 = 160, weight = 30 kg
-    if (greedyRes.totalUrgency != 160) return false;
-    if (greedyRes.totalWeightKg != 30) return false;
 
     // DP must pick Blankets + Water: urgency = 100 + 120 = 220, weight = 50 kg (100% capacity)
     if (dpRes.totalUrgency != 220) return false;
@@ -437,37 +432,7 @@ static bool testKnapsackDemo160vs220() {
     return true;
 }
 
-// Test 17: Checks that DP urgency is never less than Greedy across 100 random instances.
-// Why it matters: Confirms that DP is mathematically guaranteed to be >= greedy.
-static bool testKnapsackDPNeverBelowGreedy() {
-    std::mt19937 rng(999);
-    std::uniform_int_distribution<int> nDist(5, 30);
-    std::uniform_int_distribution<int> weightDist(2, 35);
-    std::uniform_int_distribution<int> urgDist(10, 120);
-    std::uniform_int_distribution<int> capDist(30, 300);
-
-    for (int iter = 0; iter < 100; ++iter) {
-        int n = nDist(rng);
-        int cap = capDist(rng);
-        std::vector<SupplyItem> items;
-        for (int i = 0; i < n; ++i) {
-            items.push_back({"Item_" + std::to_string(i), weightDist(rng), urgDist(rng)});
-        }
-
-        KnapsackResult dpRes = solveKnapsackDP(items, cap);
-        KnapsackResult greedyRes = solveKnapsackGreedy(items, cap);
-
-        if (dpRes.totalUrgency < greedyRes.totalUrgency) {
-            return false;
-        }
-        if (dpRes.totalWeightKg > cap || greedyRes.totalWeightKg > cap) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Test 18: Checks edge case where truck capacity is 0 kg.
+// Test 17: Checks edge case where truck capacity is 0 kg.
 // Why it matters: Verifies that a zero-capacity vehicle correctly loads 0 items with 0 urgency.
 static bool testKnapsackCapacityZero() {
     std::vector<SupplyItem> items = {
@@ -480,15 +445,10 @@ static bool testKnapsackCapacityZero() {
     if (res.totalWeightKg != 0) return false;
     if (res.totalUrgency != 0) return false;
 
-    KnapsackResult gRes = solveKnapsackGreedy(items, 0);
-    if (!gRes.chosenItems.empty()) return false;
-    if (gRes.totalWeightKg != 0) return false;
-    if (gRes.totalUrgency != 0) return false;
-
     return true;
 }
 
-// Test 19: Checks that items heavier than total capacity are never loaded.
+// Test 18: Checks that items heavier than total capacity are never loaded.
 // Why it matters: Ensures overweight items are cleanly rejected without memory issues.
 static bool testKnapsackItemsHeavierThanCapacityNeverChosen() {
     std::vector<SupplyItem> items = {
@@ -505,7 +465,7 @@ static bool testKnapsackItemsHeavierThanCapacityNeverChosen() {
     return true;
 }
 
-// Test 20: Checks that if all candidate items fit on the truck, all are chosen.
+// Test 19: Checks that if all candidate items fit on the truck, all are chosen.
 // Why it matters: Verifies optimal packing when capacity is sufficiently abundant.
 static bool testKnapsackAllItemsFit() {
     std::vector<SupplyItem> items = {
@@ -524,7 +484,7 @@ static bool testKnapsackAllItemsFit() {
     return true;
 }
 
-// Test 21: Checks that chosen cargo weight never exceeds truck capacity across 50 random runs.
+// Test 20: Checks that chosen cargo weight never exceeds truck capacity across 50 random runs.
 // Why it matters: Confirms that physical payload safety constraints are strictly respected.
 static bool testKnapsackChosenWeightNeverExceedsCapacity() {
     std::mt19937 rng(777);
@@ -557,7 +517,7 @@ static bool testKnapsackChosenWeightNeverExceedsCapacity() {
     return true;
 }
 
-// Test 22: Checks that invalid inputs (negative weights, capacity > 5000, etc.) throw exceptions.
+// Test 21: Checks that invalid inputs (negative weights, capacity > 5000, etc.) throw exceptions.
 // Why it matters: Validates that error conditions are caught early before invalid memory access.
 static bool testKnapsackInvalidInputs() {
     std::vector<SupplyItem> validItems = {{"Item 1", 10, 50}};
@@ -605,7 +565,7 @@ static bool testKnapsackInvalidInputs() {
     return true;
 }
 
-// Test 23: Checks that an unreachable destination returns reachable: false without crashing.
+// Test 22: Checks that an unreachable destination returns reachable: false without crashing.
 // Why it matters: Proves that relief load planning handles severed road connections safely.
 static bool testKnapsackUnreachableVillageRoute() {
     Graph g = buildSmallTestGraph();
@@ -621,7 +581,7 @@ static bool testKnapsackUnreachableVillageRoute() {
     return true;
 }
 
-// Test 24: Checks that manifest rows aggregate correctly and totals match reported values.
+// Test 23: Checks that manifest rows aggregate correctly and totals match reported values.
 // Why it matters: Guarantees that grouped cargo item rows never deviate from total weight/urgency
 //                 and that capacity limits are strictly obeyed across multiple village scenarios.
 static bool testManifestBreakdownIntegrity() {
@@ -649,7 +609,6 @@ static bool testManifestBreakdownIntegrity() {
 
         for (int cap : sampleCapacities) {
             KnapsackResult dp = solveKnapsackDP(items, cap);
-            KnapsackResult greedy = solveKnapsackGreedy(items, cap);
 
             auto verifyManifest = [cap](const KnapsackResult& kr) -> bool {
                 std::unordered_map<std::string, int> counts;
@@ -683,7 +642,6 @@ static bool testManifestBreakdownIntegrity() {
             };
 
             if (!verifyManifest(dp)) return false;
-            if (!verifyManifest(greedy)) return false;
         }
     }
     return true;
@@ -691,7 +649,7 @@ static bool testManifestBreakdownIntegrity() {
 
 // ─── Main ────────────────────────────────────────────────────────────────
 
-// Test suite runner: runs all 24 unit tests and reports aggregated pass/fail statistics.
+// Test suite runner: runs all 23 unit tests and reports aggregated pass/fail statistics.
 // Output: 0 if all tests pass; 1 if any test fails.
 int main() {
     std::cout << "\n========================================" << std::endl;
@@ -714,10 +672,9 @@ int main() {
     runTest("Restoring a road restores original optimal route", testRestoreRoad);
     runTest("Load full network.json (>=38 nodes, >=70 roads)", testLoadNetworkJson);
 
-    // Relief Truck Loading Knapsack Tests (10)
+    // Relief Truck Loading Knapsack Tests (9)
     runTest("Knapsack DP equals brute-force on 50 random small instances (n<=11)", testKnapsackDPEqualsBruteForce);
-    runTest("Knapsack 160 vs 220 demo verification (Greedy: 160, DP: 220)", testKnapsackDemo160vs220);
-    runTest("Knapsack DP urgency is never below Greedy urgency (100 runs)", testKnapsackDPNeverBelowGreedy);
+    runTest("Knapsack demo verification (DP = 220 urgency, 50 kg, table 4x51)", testKnapsackDemoDP);
     runTest("Knapsack capacity 0 returns empty load", testKnapsackCapacityZero);
     runTest("Knapsack items heavier than capacity are never chosen", testKnapsackItemsHeavierThanCapacityNeverChosen);
     runTest("Knapsack all items fit means all are taken", testKnapsackAllItemsFit);

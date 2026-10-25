@@ -2,7 +2,7 @@
 //
 // What this file does:
 //   Implements the embedded HTTP web server using the cpp-httplib single-header library.
-//   It serves static assets (HTML, CSS, JS, local woff2 fonts, emergency numbers) from web/
+//   It serves static assets (HTML, CSS, JS, local woff2 fonts) from web/
 //   and registers 14 REST API endpoints exchanging JSON data with the frontend.
 //
 // What is inside:
@@ -22,8 +22,8 @@
 //      10. POST /api/trace         — step-by-step Dijkstra execution trace for visualizer
 //      11. GET  /api/coverage      — multi-source shelter coverage analysis
 //      12. GET  /api/supplies      — supply catalogue, village needs, and eligible depots
-//      13. POST /api/load-plan     — 0/1 knapsack DP vs greedy heuristic with Dijkstra trip route
-//      14. GET  /api/load-demo     — canonical 50 kg counterexample where greedy ratio fails
+//      13. POST /api/load-plan     — 0/1 knapsack DP with Dijkstra trip route
+//      14. GET  /api/load-demo     — canonical 50 kg DP worked example with full matrix
 //
 // Other files that use this file:
 //   - Called by src/main.cpp to start the web server in default mode.
@@ -808,7 +808,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
                 return;
             }
 
-            // Load surveyed emergency needs per village
+            // Load surveyed relief needs per village
             std::ifstream needFile("data/village_needs.json");
             if (needFile.is_open()) {
                 villageNeedsData = json::parse(needFile);
@@ -856,9 +856,9 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
 
     // ── 13. POST /api/load-plan ──────────────────────────────────────────
     // What it does: Computes the delivery trip route via Dijkstra on open roads and solves
-    //               relief truck loading using both 0/1 Knapsack DP (optimal) and Greedy ratio.
+    //               relief truck loading using 0/1 Knapsack DP (optimal).
     // Request:  POST /api/load-plan with {"depotId": "ngo1", "villageId": "v1", "capacityKg": 200}
-    // Response: {"reachable": true, "distance": 12.4, "dp": {...}, "greedy": {...}}
+    // Response: {"reachable": true, "distance": 12.4, "dp": {...}}
     // Errors:   HTTP 400 on invalid depot, village, or capacity; HTTP 500 on internal failure.
     svr.Post("/api/load-plan", [&graph](const httplib::Request& req, httplib::Response& res) {
         try {
@@ -928,7 +928,7 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
             }
             j["path"] = pathArr;
 
-            // Step 2: Ingest village emergency demand profile
+            // Step 2: Ingest village relief demand profile
             std::ifstream needFile("data/village_needs.json");
             if (!needFile.is_open()) {
                 sendError(res, 500, "Cannot open data/village_needs.json");
@@ -966,13 +966,10 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
             j["totalWeightNeeded"] = totalDemandWeight;
             j["totalUrgencyNeeded"] = totalDemandUrgency;
 
-            // Step 3: Run both DP and Greedy knapsack solvers
+            // Step 3: Run DP knapsack solver
             KnapsackResult dpResult = solveKnapsackDP(items, capacityKg, false);
-            KnapsackResult greedyResult = solveKnapsackGreedy(items, capacityKg);
 
             j["dp"] = formatKnapsackResult(dpResult);
-            j["greedy"] = formatKnapsackResult(greedyResult);
-            j["urgencyGain"] = dpResult.totalUrgency - greedyResult.totalUrgency;
 
             res.set_content(j.dump(), "application/json");
         } catch (const std::invalid_argument& e) {
@@ -983,26 +980,24 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
     });
 
     // ── 14. GET /api/load-demo ───────────────────────────────────────────
-    // What it does: Returns a fixed pedagogical counterexample where greedy ratio fails
+    // What it does: Returns a fixed pedagogical worked example for 0/1 Knapsack DP
     //               along with the full 2D DP matrix and backtracking coordinates.
     // Setup:    Capacity: 50 kg.
     //           Items: Medical kit (10kg, 60), Blankets (20kg, 100), Water (30kg, 120).
-    //           Greedy picks: Med kit + Blankets = 30kg, Urgency 160 (wasting 20kg).
-    //           DP picks: Blankets + Water = 50kg, Urgency 220 (+60 gain).
+    //           DP picks: Blankets + Water = 50kg, Urgency 220.
     // Request:  GET /api/load-demo (no body)
-    // Response: {"capacityKg": 50, "items": [...], "dp": {...}, "greedy": {...}}
+    // Response: {"capacityKg": 50, "items": [...], "dp": {...}}
     svr.Get("/api/load-demo", [](const httplib::Request&, httplib::Response& res) {
         try {
             int capacity = 50;
             std::vector<SupplyItem> items = {
-                {"Medical kit", 10, 60},      // ratio 6.0
-                {"Blanket bundle", 20, 100},  // ratio 5.0
-                {"Water crate", 30, 120}      // ratio 4.0
+                {"Medical kit", 10, 60},
+                {"Blanket bundle", 20, 100},
+                {"Water crate", 30, 120}
             };
 
             // Solve DP with full table and backtracking path recording
             KnapsackResult dp = solveKnapsackDP(items, capacity, true);
-            KnapsackResult greedy = solveKnapsackGreedy(items, capacity);
 
             json j;
             j["capacityKg"] = capacity;
@@ -1014,7 +1009,6 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
                 it["name"] = item.name;
                 it["weightKg"] = item.weightKg;
                 it["urgency"] = item.urgency;
-                it["ratio"] = static_cast<double>(item.urgency) / item.weightKg;
                 itemsArr.push_back(it);
             }
             j["items"] = itemsArr;
@@ -1038,13 +1032,6 @@ void startServer(Graph& graph, int port, const std::string& webRoot) {
             j["dp"] = dpJson;
             j["dpTable"] = dp.dpTable;
             j["backtrackCells"] = backtrackArr;
-
-            // Serialize Greedy result with grouped breakdown
-            json greedyJson = formatKnapsackResult(greedy);
-            j["greedy"] = greedyJson;
-
-            // Exact urgency difference: 220 - 160 = +60
-            j["urgencyGain"] = dp.totalUrgency - greedy.totalUrgency;
 
             res.set_content(j.dump(), "application/json");
         } catch (const std::exception& e) {

@@ -9,17 +9,6 @@
 </head>
 <body>
 
-  <!-- Slim Bar Always Visible at Top -->
-  <aside class="top-emergency-bar" role="banner" aria-label="Emergency Dispatch Bar">
-    <span>National Calamity Alert: In an immediate emergency call <strong>112</strong></span>
-    <a href="tel:112" class="emergency-call-pill" title="Tap to call National Emergency Number 112">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-      </svg>
-      Call 112
-    </a>
-  </aside>
-
   <!-- Print View Header (Shown only during printing) -->
   <div class="print-only-header" id="print-view-container" style="display: none;">
     <h1 style="font-size: 26px; margin-bottom: 4px;">SafeRoute &mdash; Official Evacuation &amp; Relief Deployment Document</h1>
@@ -59,12 +48,6 @@
           <circle cx="18.5" cy="18.5" r="2.5"/>
         </svg>
         Relief Loading
-      </button>
-      <button class="nav-tab-btn" id="tab-btn-emergency" role="tab" aria-selected="false" aria-controls="pane-emergency">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-        </svg>
-        Emergency Numbers
       </button>
     </nav>
 
@@ -538,13 +521,13 @@
               </button>
 
               <div style="border-top: 1px solid #E3D6BE; padding-top: 14px; margin-top: 14px;">
-                <button id="btn-show-demo" class="btn btn-secondary btn-block" title="Inspect educational counterexample where greedy ratio fails">
+                <button id="btn-show-demo" class="btn btn-secondary btn-block" title="Inspect educational DP table and backtracking worked example">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="16" x2="12" y2="12"/>
                     <line x1="12" y1="8" x2="12.01" y2="8"/>
                   </svg>
-                  Show Demo Where Greedy Fails
+                  Show DP Table Demo
                 </button>
               </div>
             </div>
@@ -602,15 +585,10 @@
           <!-- Active Results Container -->
           <div id="loading-results-container" style="display: none;">
 
-            <!-- Urgency Delta Callout Banner -->
-            <div id="urgency-delta-banner" class="delta-callout-banner">
-              <!-- Dynamically populated e.g. "+35 urgency gained by DP over greedy heuristic" -->
-            </div>
-
-            <!-- Side-by-Side Comparison Grid -->
+            <!-- Knapsack Card Container -->
             <div class="knapsack-comparison-grid">
 
-              <!-- Card A: Optimal Load (DP) -->
+              <!-- Optimal Load (DP) -->
               <div class="card method-card dp-card">
                 <div class="card-header method-header">
                   <div class="method-title-wrap">
@@ -654,90 +632,40 @@
                 </div>
               </div>
 
-              <!-- Card B: Quick Heuristic (Greedy) -->
-              <div class="card method-card greedy-card">
-                <div class="card-header method-header">
-                  <div class="method-title-wrap">
-                    <span class="method-badge greedy-badge">Greedy Heuristic</span>
-                    <h3>Quick Load (Greedy)</h3>
-                  </div>
-                  <span class="complexity-pill">O(n log n) Heuristic</span>
-                </div>
-                <div class="card-body">
-                  <div class="method-hero-stat">
-                    <span class="stat-num" id="greedy-total-urgency">0</span>
-                    <span class="stat-sub">Total Urgency Points</span>
-                  </div>
-
-                  <div class="weight-usage-block">
-                    <div class="weight-label-row">
-                      <span>Payload Used</span>
-                      <strong id="greedy-weight-ratio">0 / 200 kg</strong>
-                    </div>
-                    <div class="weight-bar-track">
-                      <div class="weight-bar-fill greedy-fill" id="greedy-weight-bar" style="width: 0%;"></div>
-                    </div>
-                    <span class="weight-pct-sub" id="greedy-weight-pct">0% capacity</span>
-                  </div>
-
-                  <h4 class="manifest-heading">Manifest Breakdown (<span id="greedy-item-count">0</span> items)</h4>
-                  <div class="manifest-list-wrap">
-                    <table class="manifest-table" id="greedy-manifest-table">
-                      <thead>
-                        <tr>
-                          <th>Item Name</th>
-                          <th style="text-align: center;">Qty</th>
-                          <th style="text-align: right;">Unit Wt</th>
-                          <th style="text-align: right;">Total Wt</th>
-                          <th style="text-align: right;">Urgency</th>
-                        </tr>
-                      </thead>
-                      <tbody></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
             </div>
 
           </div>
 
-          <!-- Educational Demo Section: Where Greedy Fails -->
+          <!-- Educational Demo Section: DP Worked Example -->
           <section class="card" id="card-demo-container" style="display: none; margin-top: 20px;">
             <div class="card-header">
               <h2>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B8473D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2F7D4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="12" y1="8" x2="12" y2="12"/>
                   <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                Counterexample: Where Greedy Fails (50 kg Limit)
+                Dynamic Programming Worked Example (50 kg Limit)
               </h2>
               <button id="btn-close-demo" class="btn btn-outline btn-sm">Hide Demo</button>
             </div>
             <div class="card-body">
               <div class="demo-explanation-box">
-                <p><strong>The Greedy Trap:</strong> A greedy heuristic selects items by the highest urgency-to-weight ratio (\(u_i / w_i\)).</p>
+                <p><strong>0/1 Knapsack DP Worked Example (50 kg Limit):</strong></p>
                 <ul style="margin: 8px 0 8px 20px; font-size: 14px; line-height: 1.6;">
-                  <li><strong>Medical kit:</strong> 10 kg, Urgency 60 &rarr; Ratio <strong>6.0</strong> pt/kg</li>
-                  <li><strong>Blanket bundle:</strong> 20 kg, Urgency 100 &rarr; Ratio <strong>5.0</strong> pt/kg</li>
-                  <li><strong>Water crate:</strong> 30 kg, Urgency 120 &rarr; Ratio <strong>4.0</strong> pt/kg</li>
+                  <li><strong>Medical kit:</strong> 10 kg, Urgency 60</li>
+                  <li><strong>Blanket bundle:</strong> 20 kg, Urgency 100</li>
+                  <li><strong>Water crate:</strong> 30 kg, Urgency 120</li>
                 </ul>
-                <p><strong>Greedy Choice:</strong> Picks Medical kit first (10 kg), leaving 40 kg. Next it picks Blanket bundle (20 kg), leaving 20 kg. Water crate (30 kg) does NOT fit. <strong>Greedy total: 30 kg, Urgency 160</strong>.</p>
-                <p><strong>Optimal DP Choice:</strong> Skips Medical kit and selects Blanket bundle + Water crate (\(20 + 30 = 50\text{ kg}\)). <strong>DP total: 50 kg, Urgency 220 (+60 urgency gain!)</strong>.</p>
+                <p><strong>Optimal DP Choice:</strong> Dynamic programming evaluates subproblems to select Blanket bundle + Water crate (\(20 + 30 = 50\text{ kg}\)). <strong>DP total: 50 kg, Urgency 220</strong>.</p>
               </div>
 
-              <!-- Demo Side-by-Side Mini Cards -->
-              <div class="demo-cards-row" style="display: flex; gap: 16px; margin: 16px 0;">
-                <div class="demo-summary-card dp" style="flex: 1; padding: 12px; background: #EBF3ED; border: 1px solid #5E8C61; border-radius: 8px;">
+              <!-- Demo DP Mini Card -->
+              <div class="demo-cards-row" style="margin: 16px 0;">
+                <div class="demo-summary-card dp" style="padding: 12px; background: #EBF3ED; border: 1px solid #5E8C61; border-radius: 8px;">
                   <strong style="color: #2F7D4F;">DP Optimal Choice:</strong>
                   <div style="font-size: 22px; font-weight: 700; color: #2F7D4F; margin: 4px 0;">220 Urgency</div>
-                  <div style="font-size: 13px; color: #555;">Blanket bundle (20kg) + Water crate (30kg) = 50 kg (100% full)</div>
-                </div>
-                <div class="demo-summary-card greedy" style="flex: 1; padding: 12px; background: #FDF2E9; border: 1px solid #C2542D; border-radius: 8px;">
-                  <strong style="color: #C2542D;">Greedy Heuristic Choice:</strong>
-                  <div style="font-size: 22px; font-weight: 700; color: #C2542D; margin: 4px 0;">160 Urgency</div>
-                  <div style="font-size: 13px; color: #555;">Medical kit (10kg) + Blanket bundle (20kg) = 30 kg (20 kg wasted!)</div>
+                  <div style="font-size: 13px; color: #555;">Blanket bundle (20kg) + Water crate (30kg) = 50 kg (100% capacity)</div>
                 </div>
               </div>
 
@@ -757,43 +685,6 @@
         </div>
 
       </div>
-
-    </div>
-
-    <!-- ════════════════ TAB 3: EMERGENCY NUMBERS ════════════════ -->
-    <div id="pane-emergency" class="tab-pane" role="tabpanel">
-
-      <section class="card">
-        <div class="card-header">
-          <h2>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8473D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-            National Emergency Helplines &amp; Disaster Response Directory
-          </h2>
-          <span style="font-size: 13px; color: #7A6A5B;">Source: Maharashtra Police Emergency Helpline List &amp; NDMA</span>
-        </div>
-
-        <div class="card-body">
-          <!-- Dynamic Cards Container -->
-          <div id="emergency-categories-grid" class="emergency-grid">
-            <!-- Rendered dynamically from web/emergency.json -->
-          </div>
-
-          <!-- Flood Safety Tips Section -->
-          <div style="border-top: 1px solid #E3D6BE; padding-top: 20px; margin-top: 10px;">
-            <h3 style="font-size: 20px; margin-bottom: 14px;">General Flood Safety &amp; Evacuation Guidelines</h3>
-            <div id="flood-tips-grid" class="tips-grid">
-              <!-- Rendered dynamically from web/emergency.json -->
-            </div>
-          </div>
-
-          <!-- Official Disclaimer & Protocol Note -->
-          <div style="margin-top: 24px; padding: 14px; background: #FAF3E6; border: 1px solid #E3D6BE; border-radius: 8px; font-size: 13px; color: #7A6A5B;">
-            <strong>Advisory Notice:</strong> National numbers; some, like 108, vary by state. Verify locally. This prototype does not place calls. Facility contacts on the planner are demo numbers.
-          </div>
-        </div>
-      </section>
 
     </div>
 

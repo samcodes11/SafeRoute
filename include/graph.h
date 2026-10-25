@@ -4,7 +4,7 @@
 //   Defines the core data structures for modeling a disaster road network.
 //   It stores nodes (villages, hospitals, shelters) and roads as a graph.
 //   It also declares operations like loading network files, blocking roads,
-//   generating disaster scenarios, and finding nearest emergency services.
+//   generating disaster scenarios, and finding nearest relief services.
 //
 // What is inside:
 //   - NodeType enum: all facility categories.
@@ -40,11 +40,11 @@
 // C++ feature: 'enum class' creates a type-safe list of named choices.
 // It stops accidental conversion to numbers and keeps names scoped inside NodeType.
 enum class NodeType {
-    Village,      // Community needing evacuation or emergency supply delivery
+    Village,      // Community needing evacuation or relief supplies delivery
     Junction,     // Road intersection with no resident population
     Hospital,     // Medical trauma center for injured victims
     Shelter,      // Safe evacuation destination with beds and relief staff
-    Ngo,          // Humanitarian NGO relief base camp storing emergency supplies
+    Ngo,          // Humanitarian NGO relief base camp storing relief supplies
     Food,         // Government food distribution warehouse
     Water,        // Potable drinking water purification and tanker station
     FireStation,  // Fire brigade, search, and water-rescue boat outpost
@@ -75,7 +75,7 @@ struct Node {
     NodeType type;        // Category of facility (village, shelter, hospital, etc.)
     double x;             // Horizontal map position in SVG coordinate units
     double y;             // Vertical map position in SVG coordinate units
-    std::string contact;  // Contact telephone number for emergency dispatch
+    std::string contact;  // Contact telephone number for relief dispatch
     std::string note;     // Operational details, e.g. "Open 24 hours, 40 beds"
 };
 
@@ -109,7 +109,7 @@ struct ServiceEntry {
     std::string type;     // Facility category string (e.g. "hospital", "water")
     double distance;      // Shortest travel distance in km from the starting village
     bool reachable;       // True if reachable along open roads; false if blocked
-    std::string contact;  // Emergency phone contact
+    std::string contact;  // Facility phone contact
     std::string note;     // Operational notes (e.g. operating capacity)
 };
 

@@ -1,47 +1,17 @@
-// dijkstra.cpp — Implementation of Dijkstra algorithms and stepper trace recorder
-//
-// What this file does:
-//   Implements the shortest-path algorithms declared in include/dijkstra.h.
-//   It provides:
-//     1. Single-pair shortest path with early exit and path reconstruction.
-//     2. Single-source distance map to all network nodes.
-//     3. Multi-source Dijkstra expanding from all shelters simultaneously.
-//   It also records step-by-step trace events directly from the main algorithm loop
-//   so the web visualizer can demonstrate the exact execution path without code divergence.
-//
-// What is inside:
-//   - PqElement: type alias for (distance, nodeId) heap elements.
-//   - snapshotPq: helper function to serialize priority queue contents for trace steps.
-//   - dijkstraShortestPath: min-heap single-pair shortest path with early stopping.
-//   - dijkstraAllDistances: full single-source run exploring all reachable nodes.
-//   - dijkstraMultiSource: multi-source wave expansion assigning villages to shelters.
-//
-// Other files that use this file:
-//   - Linked directly into the saferoute server executable and test_runner.
+// This file contains the Dijkstra routing algorithms.
 
 #include "../include/dijkstra.h"
 
-// C++ feature note:
-// <queue> provides std::priority_queue (heap structure).
-// <algorithm> provides std::reverse to reverse the reconstructed path vector.
-// <set> provides std::set to track settled nodes and eliminate stale entries.
-// <stdexcept> provides std::invalid_argument for input error reporting.
+// These headers provide the heap, path reversal, visited set, and input errors.
 #include <queue>
 #include <algorithm>
 #include <set>
 #include <stdexcept>
 
-// ─── Priority Queue Element for Single-Source Dijkstra ───────────────────
-// C++ feature: 'using' defines a convenient type alias.
-// A std::pair holds:
-//   .first  = double (tentative distance from source in km)
-//   .second = std::string (node ID string)
+// Heap entries store a distance and its node ID.
 using PqElement = std::pair<double, std::string>;
 
-// Helper to copy and snapshot priority queue contents for the step-by-step trace.
-// Takes pqCopy by value (creating an independent copy) and pops elements in order.
-// Input:  Copy of active priority queue.
-// Output: Vector of pairs (nodeId, tentativeDistance) sorted by distance ascending.
+// Copy the heap into a list for one visualizer step.
 static std::vector<std::pair<std::string, double>> snapshotPq(
     std::priority_queue<PqElement, std::vector<PqElement>, std::greater<PqElement>> pqCopy) {
     std::vector<std::pair<std::string, double>> list;
@@ -55,37 +25,12 @@ static std::vector<std::pair<std::string, double>> snapshotPq(
 
 // ─── dijkstraShortestPath ─────────────────────────────────────────────────
 
-// Finds the shortest path between source and destination on currently open roads.
-//
-// Algorithm explanation (for viva):
-//   1. Distance Map (dist): Stores the best-known distance from source to each node.
-//      Initialized to UNREACHABLE (infinity) for all nodes, with dist[source] = 0.
-//   2. Min-Heap Priority Queue: By default, std::priority_queue is a max-heap.
-//      Passing std::greater<PqElement> makes it a MIN-heap, so top() always returns
-//      the unvisited node with the smallest tentative distance in O(log V) time.
-//   3. Stale Entry Skipping: Standard binary heaps lack a decrease-key operation.
-//      When edge relaxation finds a shorter path, a new entry is pushed to the heap.
-//      When an older, longer entry pops later, visited.count(currentNode) detects that
-//      the node was already settled, so we skip it in O(1) time.
-//   4. Early Exit: As soon as currentNode == destination is popped, we stop immediately.
-//      Because all edge distances are positive and the heap always pops the minimum,
-//      no remaining path can ever reach the destination with a shorter distance.
-//   5. Relaxation Step: For each open neighbor v of u with road length w:
-//      if dist[u] + w < dist[v], update dist[v] = dist[u] + w, record parent[v] = u,
-//      and push {dist[v], v} into the min-heap.
-//   6. Path Reconstruction: Walks backwards from destination to source using parent[],
-//      then reverses the vector to give the corridor in forward order [source -> ... -> dest].
-//
-// Input:  const Graph& graph, source ID, destination ID, optional recorder pointer.
-// Output: PathResult struct containing total distance, path vector, and reachable flag.
-// Errors: Throws std::invalid_argument if source or destination does not exist.
-// Time:   O((V + E) log V); stops even earlier when destination is reached.
-// Space:  O(V + E) for priority queue, visited set, distance table, and parent pointers.
+// Find the shortest route, starting at source and stopping at destination.
 PathResult dijkstraShortestPath(const Graph& graph,
                                 const std::string& source,
                                 const std::string& destination,
                                 TraceRecorder* recorder) {
-    // Validate that both source and destination exist in the graph
+    // Reject IDs that are not in the graph.
     if (!graph.hasNode(source)) {
         throw std::invalid_argument("Source node does not exist: " + source);
     }
@@ -93,7 +38,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
         throw std::invalid_argument("Destination node does not exist: " + destination);
     }
 
-    // Trivial base case: traveler is already at the destination (distance is 0 km)
+    // A route from a node to itself has no distance.
     if (source == destination) {
         if (recorder) {
             TraceStep step;
@@ -113,32 +58,31 @@ PathResult dijkstraShortestPath(const Graph& graph,
         return {0.0, {source}, true};
     }
 
-    // Step 1: Initialize distance table to infinity (UNREACHABLE) and source to 0.0
+    // Start with every distance unknown, except the source at zero.
     std::unordered_map<std::string, double> dist;
     for (const auto& [id, node] : graph.getNodes()) {
         dist[id] = UNREACHABLE;
     }
     dist[source] = 0.0;
 
-    // Step 2: Parent pointer map to reconstruct the final route backwards
+    // Remember the previous node for each best route.
     std::unordered_map<std::string, std::string> parent;
 
-    // Step 3: Set of finalized nodes whose shortest path is fully settled
+    // Track nodes whose shortest distance is final.
     std::set<std::string> visited;
 
-    // Step 4: Min-heap priority queue storing {tentativeDistance, nodeId}
-    // C++ feature: std::greater comparator inverts the heap to pop smallest distance first
+    // The min-heap returns the closest known node first.
     std::priority_queue<PqElement, std::vector<PqElement>, std::greater<PqElement>> pq;
     pq.push({0.0, source});
 
     int stepCounter = 0;
 
-    // Step 5: Main Dijkstra settlement loop
+    // Process nodes until the heap is empty or destination is settled.
     while (!pq.empty()) {
         auto [currentDist, currentNode] = pq.top();
         pq.pop();
 
-        // Stale entry check: ignore if an earlier shorter path already settled this node
+        // Ignore old heap entries for nodes already settled.
         if (visited.count(currentNode)) {
             if (recorder && static_cast<int>(recorder->steps.size()) < recorder->maxSteps) {
                 TraceStep step;
@@ -158,7 +102,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
             continue;
         }
 
-        // Early stopping check: if destination popped, its shortest path is guaranteed optimal
+        // The destination is final when it is the closest heap entry.
         if (currentNode == destination) {
             visited.insert(currentNode);
             if (recorder && static_cast<int>(recorder->steps.size()) < recorder->maxSteps) {
@@ -181,7 +125,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
 
         visited.insert(currentNode);
 
-        // Record pop step for visualizer trace
+        // Save this heap removal for the visualizer.
         if (recorder && static_cast<int>(recorder->steps.size()) < recorder->maxSteps) {
             TraceStep step;
             step.stepIndex = ++stepCounter;
@@ -198,13 +142,13 @@ PathResult dijkstraShortestPath(const Graph& graph,
             recorder->steps.push_back(step);
         }
 
-        // Step 6: Relax open incident road edges
+        // Check each road leaving the current node.
         for (const auto& edge : graph.getNeighbours(currentNode)) {
             double oldDist = dist[edge.neighbour];
             double newDist = currentDist + edge.distance;
             bool didRelax = false;
 
-            // Relaxation condition: is path through currentNode shorter than known distance?
+            // Keep the new route only if it is shorter.
             if (newDist < oldDist) {
                 dist[edge.neighbour] = newDist;
                 parent[edge.neighbour] = currentNode;
@@ -212,7 +156,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
                 didRelax = true;
             }
 
-            // Record edge relaxation step for visualizer trace
+            // Save this road check for the visualizer.
             if (recorder && static_cast<int>(recorder->steps.size()) < recorder->maxSteps) {
                 TraceStep step;
                 step.stepIndex = ++stepCounter;
@@ -231,12 +175,12 @@ PathResult dijkstraShortestPath(const Graph& graph,
         }
     }
 
-    // Step 7: Check if destination was reached or is cut off by flood obstructions
+    // No finite distance means no open route exists.
     if (dist[destination] == UNREACHABLE) {
         return {UNREACHABLE, {}, false};
     }
 
-    // Step 8: Reconstruct path from parent pointers by walking backwards from destination
+    // Follow parent links backward to rebuild the route.
     std::vector<std::string> path;
     std::string curr = destination;
     while (curr != source) {
@@ -249,7 +193,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
     }
     path.push_back(source);
 
-    // Reverse path so it runs in forward order: source -> waypoints -> destination
+    // Put the route in source-to-destination order.
     std::reverse(path.begin(), path.end());
 
     return {dist[destination], path, true};
@@ -257,14 +201,7 @@ PathResult dijkstraShortestPath(const Graph& graph,
 
 // ─── dijkstraAllDistances ─────────────────────────────────────────────────
 
-// Computes shortest distances from a single source node to every node in the graph.
-// Used by nearest services search and shelter ranking.
-//
-// Input:  const Graph& graph, source node ID string.
-// Output: Map of nodeId -> shortest distance in km (or UNREACHABLE if disconnected).
-// Errors: Throws std::invalid_argument if source node does not exist.
-// Time:   O((V + E) log V).
-// Space:  O(V) for distance table and priority queue.
+// Find shortest distances from one source to every reachable node.
 std::unordered_map<std::string, double> dijkstraAllDistances(
     const Graph& graph,
     const std::string& source) {
@@ -272,7 +209,7 @@ std::unordered_map<std::string, double> dijkstraAllDistances(
         throw std::invalid_argument("Source node does not exist: " + source);
     }
 
-    // Initialize all distances to UNREACHABLE and source to 0.0
+    // Set all distances to infinity, then start the source at zero.
     std::unordered_map<std::string, double> dist;
     for (const auto& [id, node] : graph.getNodes()) {
         dist[id] = UNREACHABLE;
@@ -283,18 +220,18 @@ std::unordered_map<std::string, double> dijkstraAllDistances(
     std::priority_queue<PqElement, std::vector<PqElement>, std::greater<PqElement>> pq;
     pq.push({0.0, source});
 
-    // Run Dijkstra to exhaustion (explore all reachable components)
+    // Keep processing until every reachable node is settled.
     while (!pq.empty()) {
         auto [currentDist, currentNode] = pq.top();
         pq.pop();
 
-        // Skip stale heap entries
+        // Ignore nodes that were already settled.
         if (visited.count(currentNode)) {
             continue;
         }
         visited.insert(currentNode);
 
-        // Relax open edges
+        // Update a neighbor when this route is shorter.
         for (const auto& edge : graph.getNeighbours(currentNode)) {
             double newDist = currentDist + edge.distance;
             if (newDist < dist[edge.neighbour]) {
@@ -309,18 +246,7 @@ std::unordered_map<std::string, double> dijkstraAllDistances(
 
 // ─── dijkstraMultiSource ──────────────────────────────────────────────────
 
-// Solves territory-wide shelter coverage in a single search pass.
-//
-// How it works:
-//   1. All open shelters are seeded into the min-heap at distance 0 with their own ID as origin.
-//   2. The search expands simultaneously across the network like multiple circular wave fronts.
-//   3. Whichever shelter wave front reaches a village first settles that village's distance
-//      and assigns the closest shelter ID.
-//
-// Input:  const Graph& graph, vector of source shelter node IDs.
-// Output: Map of nodeId -> MultiSourceDistance {distance, sourceOrigin}.
-// Time:   O((V + E) log V).
-// Space:  O(V) for result map and min-heap.
+// Find the nearest source for every node in one search.
 std::unordered_map<std::string, MultiSourceDistance> dijkstraMultiSource(
     const Graph& graph,
     const std::vector<std::string>& sources) {
@@ -340,7 +266,7 @@ std::unordered_map<std::string, MultiSourceDistance> dijkstraMultiSource(
         std::string node;
         std::string origin;
 
-        // Inverted operator> for min-heap comparison
+        // Order heap entries by distance.
         bool operator>(const MultiItem& other) const {
             return dist > other.dist;
         }
@@ -348,7 +274,7 @@ std::unordered_map<std::string, MultiSourceDistance> dijkstraMultiSource(
 
     std::priority_queue<MultiItem, std::vector<MultiItem>, std::greater<MultiItem>> pq;
 
-    // Push all starting shelters simultaneously at distance 0
+    // Start every valid shelter at distance zero.
     for (const auto& src : sources) {
         if (graph.hasNode(src)) {
             result[src] = {0.0, src};
@@ -358,18 +284,18 @@ std::unordered_map<std::string, MultiSourceDistance> dijkstraMultiSource(
 
     std::set<std::string> visited;
 
-    // Multi-source Dijkstra loop
+    // Expand the closest route from any shelter.
     while (!pq.empty()) {
         auto top = pq.top();
         pq.pop();
 
-        // Skip stale entries
+        // Ignore nodes that have already been settled.
         if (visited.count(top.node)) {
             continue;
         }
         visited.insert(top.node);
 
-        // Relax open edges carrying the origin shelter tag forward
+        // Pass the shelter ID along whenever a route improves.
         for (const auto& edge : graph.getNeighbours(top.node)) {
             double newDist = top.dist + edge.distance;
             if (newDist < result[edge.neighbour].distance) {
