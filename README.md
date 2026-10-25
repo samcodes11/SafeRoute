@@ -367,7 +367,7 @@ Dijkstra's algorithm solves Single-Source Shortest Path (SSSP) on graphs with no
 - **Institution**: College Mini Project
 - **Authors**:
   - **Samridhi Chourasia** — [GitHub: @samcodes11](https://github.com/samcodes11)
-  - **Keerti Singh** — [GitHub: @<!-- TODO: Keerti Singh GitHub handle -->](https://github.com/) *(Collaborator — GitHub username pending)*
+  - **Keerti Singh** — [GitHub: @keertisingh6](https://github.com/keertisingh6)
 
 ---
 SafeRoute &copy; 2026 SafeRoute Contributors. Released under the [MIT License](LICENSE). Built with C++17, Vanilla JavaScript, and SVG.
